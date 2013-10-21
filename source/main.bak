@@ -1,0 +1,139 @@
+// main.cpp 
+
+//system classes
+#include <iostream>
+#include <fstream>
+#include <cstring>
+#include <cmath>
+#include <vector>
+
+//raytracer classes
+#include "const.h"
+#include "frame.h"
+#include "camera.h"
+#include "scene.h"
+#include "raytracer.h"
+#include "quickcg.h"
+#include "matrix.h"
+#include "transformation.h"
+
+#define resX 600 
+#define resY 400
+#define traceDepth 3
+#define antiAlias 2
+
+using namespace std;
+
+//global procedures
+void testAlgebra();
+void testTrigonometry();
+void render();
+
+
+int main(int /*argc*/, char */*argv*/[])
+{
+  //test
+  //testAlgebra();
+  //testTrigonometry();
+  render();
+  return 0;
+}
+
+void render() {
+  //local variables
+  //read in variables
+  string test="hello";
+  char filename[128];
+  char line[1024];
+  ifstream file;
+//  cout << "Dateiname:" << flush;
+//  cin.getline(filename,127);
+//  filename = "tracerAttributes.txt";
+  file.open("tracerAttributes.txt",ios::in);  
+  if (file.good())
+  {
+    file.seekg(0L,ios::beg);
+//    while (!file.eof())
+//    {
+      file.getline(line,1024);
+//    }
+  }
+
+  //create the grafic window
+  QuickCG::screen(resX, resY, 0, "raytracing test");
+
+  //create the scene
+  scene testScene;
+//  testScene.initScene(); 
+  //construct the raytracer
+  raytracer testTracer(&testScene, resX, resY);
+  testTracer.setTraceDepth(traceDepth);
+  testTracer.setAntiAlias(antiAlias);
+
+  //beging raytracing
+  float nrPixels = resX*resY;
+  int renderedPixels = 0;
+  for (int i=0; i<resX; i++)
+  { 
+    for (int j=0; j<resY; j++)
+    {
+      //cout << "begin rendering of pixel: " << i << " " << j << "\n";
+      color pixelColor;
+      pixelColor = testTracer.renderPixel(i,j);
+      //cout << pixelColor.getR();
+      QuickCG::pset(i,j,QuickCG::ColorRGB(pixelColor.getR()*255,pixelColor.getG()*255,pixelColor.getB()*255));
+      renderedPixels++;
+      float percentage = renderedPixels*100/nrPixels;
+      if (percentage - int(renderedPixels*100/nrPixels) == 0)
+        cout << percentage << " percent done...\n";
+    }
+  }
+  QuickCG::print(line,8,8);
+ 
+  //on screen!
+  QuickCG::redraw();
+  QuickCG::sleep();
+}
+
+void testAlgebra() {
+  cout << endl;
+  cout << "----------vector-matrix-test-----------------" << endl;
+  vector3d a(0.0f,4.0f,2.0f);
+  a.print("a");
+  matrix A(4,4);
+  matrix identity = matrix::getIdentityMatrix();
+  identity.print("I");
+  vector3d b = identity * a;
+  b.print("b");
+  matrix RX = matrix::getRotateXMatrix(90.0f);
+  matrix RY = matrix::getRotateYMatrix(90.0f);
+  matrix RZ = matrix::getRotateZMatrix(90.0f);
+  RX.print("rotateX");
+  b = RX * a;
+  b.print("b");
+  b = RY * b;
+  b.print("b");
+  b = RZ * b;
+  b.print("b");
+  matrix C = identity * identity;
+  C.print("C");
+  matrix D = identity*RZ*RY*RX;
+  D.print("D");
+  b = D*a;
+  b.print("b");
+  matrix E(4,4);
+  E.setEntryByIndex(0,1,5.0f); 
+  E.setEntryByIndex(1,0,6.0f); 
+  E.print("E");
+  E = identity * E;
+  E.print("E");
+  cout << "----------transformation-test----------------" << endl;
+  transformation test; 
+  test.getTrafoMatrix().print("test trafo");
+}
+
+void testTrigonometry() {
+  cout << "PI : " << PI << endl;
+  cout << "cos(PI) : " << cos(PI) << endl;
+  cout << "sin(PI) : " << sin(PI) << endl;
+}

@@ -1,0 +1,339 @@
+//raytracer.cpp
+
+#include <iostream>
+
+#include "raytracer.h"
+#include "camera.h"
+#include "scene.h"
+#include "ray.h"
+#include "primitive.h"
+#include "sphere.h"
+#include "matrix.h"
+#include <math.h>
+#include <iostream>
+
+#define n 50 
+
+using namespace std;
+
+//---------------------------------------------------------
+// raytracer constructor
+//---------------------------------------------------------
+
+raytracer::raytracer() {
+
+//---------------------------------------------------------
+// constructs a raytracer object with default values
+//---------------------------------------------------------
+
+  ambience = 0.0f;
+  m_resX = 600;
+  m_resY = 600;
+  environmentColor.setRGB(0.0f,0.0f,0.0f);
+  ambientColor.setRGB(1.0f,1.0f,1.0f);
+  globalRefrIndex = 1.0f;
+  traceDepth = 1;
+  setAntiAlias(0);
+  
+}
+
+
+//---------------------------------------------------------
+// raytracer constructor
+//---------------------------------------------------------
+
+raytracer::raytracer(scene* scene, int resX, int resY) {
+
+//---------------------------------------------------------
+// constructs a raytracer object with the given scene
+// with the resolution (x,y)
+//---------------------------------------------------------
+  cout << "raytracer constructor...\n";
+  m_scene = scene;
+  m_resX = resX;
+  m_resY = resY;
+  cout << "raytracer constructor... set camera attributes\n";
+  m_scene->getCamera()->setWidth(resX);
+  m_scene->getCamera()->setHeight(resY);
+  cout << "raytracer constructor... initiate\n";
+
+  //default
+  ambience = 0.0f;
+  environmentColor.setRGB(0.0f,0.0f,0.0f);
+  ambientColor.setRGB(1.0f,1.0f,1.0f);
+  globalRefrIndex = 1.0f;
+  traceDepth = 1;
+  setAntiAlias(0);
+  cout << "raytracer constructor... done\n";
+
+}
+
+
+void raytracer::renderScene() {
+}
+
+
+//----------------------------------------------------------
+// raytrace
+//----------------------------------------------------------
+
+color raytracer::raytrace(ray shootRay, int actTraceDepth) {
+
+//----------------------------------------------------------
+// the main routine for recursive raytracing
+//----------------------------------------------------------
+
+  primitive* hitObject = NULL;
+  color akkColor(0,0,0);
+
+  if (actTraceDepth > 0)
+  {
+    //search for nearest object in shootRay
+    hitObject = getNearestObjectInRay(shootRay);
+   
+    if (hitObject != NULL)
+    {
+      //calculate the intersection and transformed intersection position
+      vector3d intersecPos = shootRay.getOrigin() + t * shootRay.getDirection();
+      vector3d transIntersecPos = hitObject->getInverseTranslation() * shootRay.getOrigin() +
+                                  t * shootRay.getDirection();
+      for(int i=0; i<m_scene->getNrOfLights(); i++)
+      {
+        //begin color calculation of the intersection point
+        //-------------------------------------------------
+        //the actual light
+        light* actLight = m_scene->getLight(i);
+        
+        //the actual normal
+        vector3d normal = hitObject->getNormal(intersecPos);
+        
+        //get the direction vector from camera to intersection point 
+        vector3d rayDirection = -1*shootRay.getDirection();
+        rayDirection.Normalize();
+
+        //calculations of the shadow ray
+        vector3d shadowRayDirection = actLight->getPosition() - intersecPos;
+        shadowRayDirection.Normalize();
+        ray shadowRay(intersecPos,shadowRayDirection);
+        primitive* shadowObject = getNearestObjectInRay(shadowRay);
+       
+        //shadow check
+        if (shadowObject == NULL)
+        { 
+          //calculate the color at the intersection point
+          akkColor += getColorAtIntersecPos(hitObject, intersecPos, shootRay, actLight);
+        }  
+
+        //begin reflection calculation
+        //----------------------------
+        //reflection material attributes
+        float reflect = hitObject->getMaterial()->getReflect();
+        if ((reflect > 0))
+        {
+          //this is the construction of the reflected ray of the 
+          //actual shootRay for reflection calculation
+          //----------------------------------------------------
+          vector3d reflDir = 2*(rayDirection*normal)*normal - rayDirection;
+          reflDir.Normalize();
+          ray reflectRay(intersecPos, reflDir);
+
+          //get into recursion for reflection calculation
+          color reflectColor = reflect * raytrace(reflectRay, actTraceDepth-1);
+          akkColor += reflectColor;
+        }
+       //end of reflection calculation
+       //-----------------------------
+
+       //begin refraction calculation
+       //----------------------------
+       //refraction material attributes
+       float refract = hitObject->getMaterial()->getRefract();
+       float refrIndex = hitObject->getMaterial()->getRefrIndex();
+       if (refract > 0)
+       {
+         //this is the construction of the refracted ray
+         //---------------------------------------------
+         float index = globalRefrIndex/refrIndex;
+
+         //are we inside the object?
+         if ((rayDirection*normal)<0)
+         {  
+           normal = -1*normal;
+           index = 1/index; 
+         }
+         float cosAlpha = (-1*rayDirection)*normal;
+         float sinAlpha = sqrt(1-cosAlpha*cosAlpha);
+         float sinBetaQuadr = index*index * (1-cosAlpha*cosAlpha); 
+         float cosBeta = sqrt(1 - index*index * (1-cosAlpha*cosAlpha));
+         if (sinBetaQuadr <= 1)
+         {
+           vector3d rayDirectionRefract = -1*index*rayDirection - (index+cosBeta) * normal;
+           //build the ray and go into recursion
+           rayDirectionRefract.Normalize();
+           ray refractRay(intersecPos, rayDirectionRefract);
+           color refractColor = refract * raytrace(refractRay, actTraceDepth-1);
+           akkColor += refractColor;
+         }
+       }
+       //end of refraction calculation
+       //-----------------------------
+      }
+      // if no object was hit, return the background color
+    } else akkColor=environmentColor;
+  }
+  //add the ambient component at the root of the recursion tree
+  if ((hitObject!=NULL) & (actTraceDepth==traceDepth)) 
+    akkColor+=ambience*ambientColor;
+  
+//  if (actTraceDepth == traceDepth) cout << akkColor.getR() << akkColor.getG() << akkColor.getB();
+  return akkColor;
+
+}
+
+//-------------------------------------------------------------------------------
+//getColorAtIntersecPos
+//-------------------------------------------------------------------------------
+
+color raytracer::getColorAtIntersecPos(primitive* hitObject, vector3d intersecPos, 
+                                       ray shootRay, light* actLight) {
+
+//-------------------------------------------------------------------------------
+//returns the actual color at the given intersection position
+//calculates the diffuse and specular components
+//-------------------------------------------------------------------------------
+
+  //the akkumulator for the calculated color
+  color akkColor(0,0,0);
+
+  //this is the normal of the hitObject at the intersection position
+  vector3d normal = hitObject->getNormal(intersecPos);
+
+  //actual material attributes
+  float diffuse = hitObject->getMaterial()->getDiffuse();
+  float reflect = hitObject->getMaterial()->getReflect();
+  float specular = hitObject->getMaterial()->getSpecular();
+  color objectColor = hitObject->getMaterial()->getColor(intersecPos);
+  color lightColor = actLight->getColor();
+  float intensity = actLight->getIntensity(intersecPos); 
+
+  //get the vectors for calculation
+  vector3d lightPos = actLight->getPosition();
+  vector3d intersecToLight = lightPos - intersecPos;
+  vector3d rayDirection = -1*shootRay.getDirection();
+
+  //normalize the direction vectors
+  rayDirection.Normalize();
+  intersecToLight.Normalize();
+
+  //test for normal inversion
+  float cosChi = normal*rayDirection;
+  if (cosChi < 0) normal = -1*normal;
+
+  //this is the vector for specular calculation
+  vector3d intersecToLight_refl = 2*(intersecToLight*normal)*normal - intersecToLight;
+  intersecToLight_refl.Normalize();
+
+  //now calculate the angles
+  float cosPhi = normal*intersecToLight;
+  float cosTheta = intersecToLight_refl*rayDirection;
+
+  //calculate the shading
+  //---------------------
+  if ((cosPhi > 0) && (diffuse > 0))
+    akkColor = intensity * (cosPhi * diffuse) * objectColor * lightColor;
+  if ((cosTheta > 0) && (specular > 0))
+    akkColor += intensity * (pow(cosTheta,n)*specular) * objectColor * lightColor;
+  
+//  cout << akkColor.getR() << akkColor.getG() << akkColor.getB();
+  return akkColor;
+}
+
+//---------------------------------------------------------------
+// getNearestObjectInRay
+//---------------------------------------------------------------
+
+primitive* raytracer::getNearestObjectInRay(ray aShootRay) {
+
+//---------------------------------------------------------------
+// calculates the nearest object which is hit by aShootRay
+// - modifies the t paramter for intersection point calculation
+//---------------------------------------------------------------
+
+  primitive* hitObject = NULL;
+  primitive* actObject = NULL;
+  float tMin = 10000;
+  float tAct=-1.0;
+
+  for (int i=0; i<m_scene->getNrOfPrimitives(); i++)
+  {	
+    actObject = m_scene->getPrimitive(i);
+    tAct = actObject->intersect(aShootRay);
+    if ((tAct>0) && (tAct<tMin)) 
+    {	
+      hitObject = actObject;
+      tMin = tAct;
+    } 
+  }
+
+  t = tMin;
+  return hitObject;
+
+}
+
+//---------------------------------------------------------------
+// renderPixel
+//---------------------------------------------------------------
+
+color raytracer::renderPixel(int x, int y) {
+	
+//---------------------------------------------------------------
+// calculates the color of the pixel at (x,y) in the frame of
+// the camera
+//---------------------------------------------------------------
+//  cout << "renderPixel";
+  color pixelColor(0,0,0);
+  //this if for anti-alias
+  if ((mAntiAlias > 0) && (mAntiAlias%2 == 0))
+  {
+    float h = 1/float(mAntiAlias);
+    float h2 = h*h;
+    float r,g,b;
+    r = 0;
+    g = 0;
+    b = 0;
+   
+    //if ((x%10==0) && (y%10==0)) cout<<"h:"<<h<<"h2:"<<h2<<"\n";
+    for (int ix=0; ix<mAntiAlias; ix++)
+      for (int iy=0; iy<mAntiAlias; iy++)
+      {
+        float tx = (float(x)-(mAntiAlias-1)*h/2)+ix*h;
+        float ty = (float(y)-(mAntiAlias-1)*h/2)+iy*h;
+        //if ((x%10==0) && (y%10==0)) cout << "tx:" << tx << "ty" << ty << "\n";
+        ray shootRay = m_scene->getCamera()->getShootRay(tx,ty);  
+        color actColor = raytrace(shootRay, traceDepth);
+        r += actColor.getR();
+        g += actColor.getG();
+        b += actColor.getB();
+      }
+    pixelColor.setR(h2*r);
+    pixelColor.setG(h2*g);
+    pixelColor.setB(h2*b);
+    //if ((x%10==0) && (y%10==0)) 
+    //  cout << "color averaged: "<<pixelColor.getR()<<" "
+    //                            <<pixelColor.getG()<<" "
+    //                            <<pixelColor.getB()<<"\n";
+  }
+  else
+  //no anti-alias
+  {
+    ray shootRay = m_scene->getCamera()->getShootRay(x,y);
+    pixelColor = raytrace(shootRay, traceDepth);
+    //if ((x%10==0) && (y%10==0)) 
+    //  cout << "color: "<<pixelColor.getR()<<" "
+    //                   <<pixelColor.getG()<<" "
+    //                   <<pixelColor.getB()<<"\n";
+  }
+  //if ((x%10==0) && (y%10==0)) 
+  //  cout << pixelColor.getR() << pixelColor.getG() << pixelColor.getB();
+  return pixelColor;
+}

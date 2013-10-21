@@ -1,0 +1,47 @@
+//camera.cpp
+
+#include "camera.h"
+
+using namespace std;
+
+camera::camera() {
+  position.setCoordinates(0,0,-15);
+  direction.setCoordinates(0,0,1);
+  angle = 45;
+  mFrame.setPosition(position + 1 * direction);
+}
+
+camera::camera(vector3d position_in, vector3d direction_in,
+			   int angle_in) {
+  position = position_in;
+  direction_in.Normalize();
+  angle = angle_in;
+  mFrame.setPosition(position + 1 * direction);
+}
+
+ray camera::getShootRay(float x, float y)
+{
+  ray ray;
+  int resX = mFrame.getWidth();
+  int resY = mFrame.getHeight();
+  vector3d ex = mFrame.getUnitVecX();
+  vector3d ey = mFrame.getUnitVecY();
+
+  ray.setOrigin(position);
+  vector3d pixelPosition;
+  pixelPosition = mFrame.getLeftUp()  + 
+                  ((float)x/resX) * 1 * ex +
+                  ((float)y/resY) * 1 * ey;
+  vector3d dir = pixelPosition - position;
+  dir.Normalize();
+  ray.setDirection(dir);
+  return ray;
+}
+
+void camera::setWidth(int width) {
+  mFrame.setWidth(width);
+}
+
+void camera::setHeight(int height) {
+  mFrame.setHeight(height);
+}

@@ -1,0 +1,3277 @@
+camera.cpp:#include "camera.h"
+camera.cpp:using namespace std;
+camera.cpp:camera::camera() {
+camera.cpp:  position.setCoordinates(0,0,-15);
+camera.cpp:  direction.setCoordinates(0,0,1);
+camera.cpp:  angle = 45;
+camera.cpp:  mFrame.setPosition(position + 1 * direction);
+camera.cpp:camera::camera(vector3d position_in, vector3d direction_in,
+camera.cpp:			   int angle_in) {
+camera.cpp:  position = position_in;
+camera.cpp:  direction_in.Normalize();
+camera.cpp:  angle = angle_in;
+camera.cpp:  mFrame.setPosition(position + 1 * direction);
+camera.cpp:ray camera::getShootRay(float x, float y)
+camera.cpp:  ray ray;
+camera.cpp:  int resX = mFrame.getWidth();
+camera.cpp:  int resY = mFrame.getHeight();
+camera.cpp:  vector3d ex = mFrame.getUnitVecX();
+camera.cpp:  vector3d ey = mFrame.getUnitVecY();
+camera.cpp:  ray.setOrigin(position);
+camera.cpp:  vector3d pixelPosition;
+camera.cpp:  pixelPosition = mFrame.getLeftUp()  + 
+camera.cpp:                  ((float)x/resX) * 1 * ex +
+camera.cpp:                  ((float)y/resY) * 1 * ey;
+camera.cpp:  vector3d dir = pixelPosition - position;
+camera.cpp:  dir.Normalize();
+camera.cpp:  ray.setDirection(dir);
+camera.cpp:  return ray;
+camera.cpp:void camera::setWidth(int width) {
+camera.cpp:  mFrame.setWidth(width);
+camera.cpp:void camera::setHeight(int height) {
+camera.cpp:  mFrame.setHeight(height);
+camera.h:#ifndef _CAMERA_
+camera.h:#define _CAMERA_
+camera.h:#include "vector3d.h"
+camera.h:#include "frame.h"
+camera.h:#include "ray.h"
+camera.h:class camera {
+camera.h:		camera(vector3d position_in, vector3d direction_in, 
+camera.h:				int angle_in);
+camera.h:		vector3d getPosition() {return position;};
+camera.h:		vector3d getDirection() {return direction;};
+camera.h:		frame& getFrame() {return mFrame;};
+camera.h:		int getAngle() {return angle;};
+camera.h:		ray getShootRay(float x, float y);
+camera.h:		void setWidth(int width);
+camera.h:		void setHeight(int height);
+camera.h:		vector3d position;
+camera.h:		vector3d direction;
+camera.h:		vector3d up;
+camera.h:		int angle;
+camera.h:		frame mFrame;
+color.cpp:#include "color.h"
+color.cpp:color operator *(float a, color B) {
+color.cpp:  color color(0,0,0);
+color.cpp:  color.setR(a*B.getR());
+color.cpp:  color.setG(a*B.getG());
+color.cpp:  color.setB(a*B.getB());
+color.cpp:  return color;
+color.cpp:color operator *(color A, color B) {
+color.cpp:  color color(0,0,0);
+color.cpp:  color.setR(A.getR()*B.getR());
+color.cpp:  color.setG(A.getG()*B.getG());
+color.cpp:  color.setB(A.getB()*B.getB());
+color.cpp:  return color;
+color.cpp:color operator +(color A, color B) {
+color.cpp:  color color(0,0,0);
+color.cpp:  color.setR(A.getR()+B.getR());
+color.cpp:  color.setG(A.getG()+B.getG());
+color.cpp:  color.setB(A.getB()+B.getB());
+color.cpp:  return color;
+color.cpp:void color::setR(float r) {
+color.cpp:  if (r > 1) red = 1;
+color.cpp:  else
+color.cpp:  if (r < 0)   red = 0;
+color.cpp:  else
+color.cpp:  red = r;
+color.cpp:void color::setG(float g) {
+color.cpp:  if (g > 1) green = 1;
+color.cpp:  else
+color.cpp:  if (g < 0)   green = 0;
+color.cpp:  else
+color.cpp:  green = g;
+color.cpp:void color::setB(float b) {
+color.cpp:  if (b > 1) blue = 1;
+color.cpp:  else
+color.cpp:  if (b < 0)   blue = 0;
+color.cpp:  else
+color.cpp:  blue = b;
+color.cpp:void color::operator+=(color A) {
+color.cpp:  setR(getR()+A.getR());
+color.cpp:  setG(getG()+A.getG());
+color.cpp:  setB(getB()+A.getB());
+color.h:#ifndef _COLOR_
+color.h:#define _COLOR_
+color.h:#include "vector3d.h"
+color.h:class color{
+color.h:  public:
+color.h:    color(){red = 0; green = 0; blue = 0;};
+color.h:    color(float r, float g, float b) {setR(r); setG(g); setB(b);};
+color.h:    float getR() {return red;};
+color.h:    float getG() {return green;};
+color.h:    float getB() {return blue;};
+color.h:    void setR(float r);
+color.h:    void setG(float g);
+color.h:    void setB(float b);
+color.h:    void setRGB(float r, float g, float b) {setR(r);setG(g);setB(b);};
+color.h:    friend color operator * (float a, color B);
+color.h:    friend color operator * (color A, color B);
+color.h:    friend color operator + (color A, color B);
+color.h:    void operator+=(color A);
+color.h:  private:
+color.h:    float red,green,blue;
+const.h:#include <cmath>
+const.h:#define PI 4*atan(1)
+frame.cpp:#include <iostream>
+frame.cpp:#include "frame.h"
+frame.cpp:frame::frame() {
+frame.cpp:  m_width = 400;
+frame.cpp:  m_height = 300;
+frame.cpp:  m_position.setCoordinates(0,0,0);
+frame.cpp:  updateFrameCoordinates();
+frame.cpp:frame::frame(vector3d position, int width, int height) {
+frame.cpp:  m_width = width;
+frame.cpp:  m_height = height;
+frame.cpp:  m_position = position;
+frame.cpp:  updateFrameCoordinates();
+frame.cpp:vector3d frame::getUnitVecX() {
+frame.cpp:  updateFrameCoordinates();
+frame.cpp:  ex = mRightUp - mLeftUp;
+frame.cpp://  ex.Normalize();
+frame.cpp:  return ex;
+frame.cpp:vector3d frame::getUnitVecY() {
+frame.cpp:  updateFrameCoordinates();
+frame.cpp:  ey = mLeftDown - mLeftUp;
+frame.cpp://  ey.Normalize();
+frame.cpp:  return ey;
+frame.cpp:void frame::setPosition(vector3d position) {
+frame.cpp:  m_position = position;
+frame.cpp:  updateFrameCoordinates();
+frame.cpp:void frame::updateFrameCoordinates() {
+frame.cpp:  float aspect = float(m_width)/float(m_height);
+frame.cpp:  mLeftUp.setCoordinates(getPosition().getX()-aspect/2,getPosition().getY()+0.5,getPosition().getZ());
+frame.cpp:  mRightUp.setCoordinates(getPosition().getX()+aspect/2,getPosition().getY()+0.5,getPosition().getZ());
+frame.cpp:  mLeftDown.setCoordinates(getPosition().getX()-aspect/2,getPosition().getY()-0.5,getPosition().getZ());
+frame.cpp:  mRightDown.setCoordinates(getPosition().getX()+aspect/2,getPosition().getY()-0.5,getPosition().getZ());
+frame.h:#ifndef _frame_
+frame.h:#define _frame_
+frame.h:#include "vector3d.h"
+frame.h:class frame {
+frame.h:  public:
+frame.h:    frame();
+frame.h:    frame(vector3d position_in, int width, int height);
+frame.h:    int getWidth() {return m_width;};
+frame.h:    int getHeight() {return m_height;};
+frame.h:    vector3d getPosition() {return m_position;};
+frame.h:    vector3d getLeftUp() {return mLeftUp;};
+frame.h:    void setWidth(int width) {m_width = width;updateFrameCoordinates();};
+frame.h:    void setHeight(int height) {m_height = height;updateFrameCoordinates();};
+frame.h:    void setPosition(vector3d position);
+frame.h:    //void updateUnitVecs(float ax, float ay, float az);
+frame.h:    vector3d getUnitVecX();
+frame.h:    vector3d getUnitVecY();
+frame.h:  private:
+frame.h:    int m_width,m_height;
+frame.h:    vector3d m_position;
+frame.h:    vector3d mLeftUp,mRightUp,mLeftDown,mRightDown;	//positions of the edges of the frame
+frame.h:    vector3d ex,ey;					//unit vectors of the frame
+frame.h:    void updateFrameCoordinates();
+hyperboloid.cpp:#include "hyperboloid.h"
+hyperboloid.cpp:#include "ray.h"
+hyperboloid.cpp:#include <math.h>
+hyperboloid.cpp:#include <iostream>
+hyperboloid.cpp:using namespace std;
+hyperboloid.cpp:hyperboloid::hyperboloid() {
+hyperboloid.cpp:hyperboloid::hyperboloid(vector3d position_in, float radius, float height,
+hyperboloid.cpp:        float alpha, float beta, float gamma) : primitive(position_in) {
+hyperboloid.cpp:  m_radius = radius;
+hyperboloid.cpp:  mAlpha = alpha;
+hyperboloid.cpp:  mBeta = beta;
+hyperboloid.cpp:  mGamma = gamma;
+hyperboloid.cpp:  mHeight = height;
+hyperboloid.cpp:float hyperboloid::intersect(ray ray) {
+hyperboloid.cpp:  float t,t1,t2 = 0;
+hyperboloid.cpp:  vector3d o = ray.getOrigin();
+hyperboloid.cpp:  vector3d d = ray.getDirection();
+hyperboloid.cpp:  vector3d p = getPosition();
+hyperboloid.cpp:  float ox = o.getX();
+hyperboloid.cpp:  float oz = o.getY();
+hyperboloid.cpp:  float oy = o.getZ();
+hyperboloid.cpp:  float dx = d.getX();
+hyperboloid.cpp:  float dz = d.getY();
+hyperboloid.cpp:  float dy = d.getZ();
+hyperboloid.cpp:  float px = p.getX();
+hyperboloid.cpp:  float pz = p.getY();
+hyperboloid.cpp:  float py = p.getZ();
+hyperboloid.cpp:  float r = m_radius;
+hyperboloid.cpp:  float a = pow(dx/mAlpha,2)+pow(dy/mBeta,2)-pow(dz/mGamma,2);
+hyperboloid.cpp:  float b = 2*((dx/pow(mAlpha,2))*(ox-px)+
+hyperboloid.cpp:               (dy/pow(mBeta,2)) *(oy-py)-
+hyperboloid.cpp:               (dz/pow(mGamma,2))*(oz-pz));
+hyperboloid.cpp:  float c = pow((ox-px)/mAlpha,2)+
+hyperboloid.cpp:            pow((oy-py)/mBeta,2)-
+hyperboloid.cpp:            pow((oz-pz)/mGamma,2)-r*r;
+hyperboloid.cpp:  float diskriminante = b*b - 4*a*c;
+hyperboloid.cpp:  if (diskriminante >= 0)
+hyperboloid.cpp:  {
+hyperboloid.cpp:    t1 = (-b - sqrt(diskriminante))/(2*a);
+hyperboloid.cpp:    t2 = (-b + sqrt(diskriminante))/(2*a);
+hyperboloid.cpp:    if (t2<t1)
+hyperboloid.cpp:    {
+hyperboloid.cpp:      float t3=t1;
+hyperboloid.cpp:      float t1=t2;
+hyperboloid.cpp:      float t2=t3; 
+hyperboloid.cpp:    }
+hyperboloid.cpp:      if ((t1>0.01f) && (t2>0.01f))
+hyperboloid.cpp:      {
+hyperboloid.cpp:        vector3d intersecPos1 = o + t1*d;
+hyperboloid.cpp:        vector3d intersecPos2 = o + t2*d;
+hyperboloid.cpp:        vector3d distance1 = intersecPos1 - p;
+hyperboloid.cpp:        vector3d distance2 = intersecPos2 - p;
+hyperboloid.cpp:        if ((sqrt(pow(distance1.getY(),2)) < mHeight/2)) t=t1;
+hyperboloid.cpp:        else
+hyperboloid.cpp:          if ((sqrt(pow(distance2.getY(),2)) < mHeight/2)) t=t2;
+hyperboloid.cpp:          else t=-1;
+hyperboloid.cpp:      } else t=-1;
+hyperboloid.cpp:  } else t=-1;
+hyperboloid.cpp:  
+hyperboloid.cpp:  return t;
+hyperboloid.cpp:vector3d hyperboloid::getNormal(vector3d p) {
+hyperboloid.cpp:  float r = getRadius(); 
+hyperboloid.cpp:  float h = 0.1f;
+hyperboloid.cpp:  float x = p.getX();
+hyperboloid.cpp:  float y = p.getY();
+hyperboloid.cpp:  float z = p.getZ();
+hyperboloid.cpp:  float px = getPosition().getX();
+hyperboloid.cpp:  float py = getPosition().getY();
+hyperboloid.cpp:  float pz = getPosition().getZ();
+hyperboloid.cpp:  //numerically
+hyperboloid.cpp:  float dfdx = ((x-px+h)*(x-px+h)-(x-px)*(x-px))/(h*pow(mAlpha,2));
+hyperboloid.cpp:  float dfdy = ((y-py+h)*(y-py+h)-(y-py)*(y-py))/(h*pow(mBeta,2));
+hyperboloid.cpp:  float dfdz = (-1*(z-pz+h)*(z-pz+h)+(z-pz)*(z-pz))/(h*pow(mGamma,2));
+hyperboloid.cpp:  vector3d normal1(dfdx,dfdz,dfdy);
+hyperboloid.cpp:  normal1.Normalize();
+hyperboloid.cpp:  return normal1;
+hyperboloid.h:#ifndef _HYPERBOLOID_
+hyperboloid.h:#define _HYPERBOLOID_
+hyperboloid.h:#include "vector3d.h"
+hyperboloid.h:#include "primitive.h"
+hyperboloid.h:class hyperboloid : public primitive {
+hyperboloid.h:  public:
+hyperboloid.h:    hyperboloid();
+hyperboloid.h:    hyperboloid(vector3d position_in, float radius, float height,
+hyperboloid.h:                float alpha, float beta, float gamma);
+hyperboloid.h:    float intersect(ray ray);
+hyperboloid.h:    vector3d getNormal(vector3d p);
+hyperboloid.h:    float getRadius() {return m_radius;};
+hyperboloid.h:  private:
+hyperboloid.h:    float m_radius;
+hyperboloid.h:    float mAlpha,mBeta,mGamma;
+hyperboloid.h:    float mHeight;
+light.cpp:#include "vector3d.h"
+light.cpp:#include "light.h"
+light.cpp:light::light() {
+light.cpp:  mPosition = vector3d(0,0,0);
+light.cpp:  mColor = color(1.0f,1.0f,1.0f);
+light.cpp:  mIntensity = 1.0;
+light.cpp:light::light(vector3d position, color c, float intensity) {
+light.cpp:  mPosition = position;
+light.cpp:  mColor = c;
+light.cpp:  mIntensity = intensity;
+light.cpp:float light::getIntensity(vector3d position) {
+light.cpp:  //vector3d d = position - mPosition;
+light.cpp:  return mIntensity;
+light.h:#ifndef _LIGHT_
+light.h:#define _LIGHT_
+light.h:#include "vector3d.h"
+light.h:#include "color.h"
+light.h:class light {
+light.h:  public:
+light.h:    light();
+light.h:    light(vector3d position, color c, float intensity);
+light.h:    void setColor(color c){mColor=c;};
+light.h:    void setPosition(vector3d p){mPosition=p;};
+light.h:    color getColor(){return mColor;};
+light.h:    vector3d getPosition(){return mPosition;};
+light.h:    float getIntensity(vector3d position);
+light.h:  private:
+light.h:    vector3d mPosition;
+light.h:    color mColor;
+light.h:    float mIntensity;
+main.bak:// main.cpp 
+main.bak://system classes
+main.bak:#include <iostream>
+main.bak:#include <fstream>
+main.bak:#include <cstring>
+main.bak:#include <cmath>
+main.bak:#include <vector>
+main.bak://raytracer classes
+main.bak:#include "const.h"
+main.bak:#include "frame.h"
+main.bak:#include "camera.h"
+main.bak:#include "scene.h"
+main.bak:#include "raytracer.h"
+main.bak:#include "quickcg.h"
+main.bak:#include "matrix.h"
+main.bak:#include "transformation.h"
+main.bak:#define resX 600 
+main.bak:#define resY 400
+main.bak:#define traceDepth 3
+main.bak:#define antiAlias 2
+main.bak:using namespace std;
+main.bak://global procedures
+main.bak:void testAlgebra();
+main.bak:void testTrigonometry();
+main.bak:void render();
+main.bak:int main(int /*argc*/, char */*argv*/[])
+main.bak:  //test
+main.bak:  //testAlgebra();
+main.bak:  //testTrigonometry();
+main.bak:  render();
+main.bak:  return 0;
+main.bak:void render() {
+main.bak:  //local variables
+main.bak:  //read in variables
+main.bak:  string test="hello";
+main.bak:  char filename[128];
+main.bak:  char line[1024];
+main.bak:  ifstream file;
+main.bak://  cout << "Dateiname:" << flush;
+main.bak://  cin.getline(filename,127);
+main.bak://  filename = "tracerAttributes.txt";
+main.bak:  file.open("tracerAttributes.txt",ios::in);  
+main.bak:  if (file.good())
+main.bak:  {
+main.bak:    file.seekg(0L,ios::beg);
+main.bak://    while (!file.eof())
+main.bak://    {
+main.bak:      file.getline(line,1024);
+main.bak://    }
+main.bak:  }
+main.bak:  //create the grafic window
+main.bak:  QuickCG::screen(resX, resY, 0, "raytracing test");
+main.bak:  //create the scene
+main.bak:  scene testScene;
+main.bak://  testScene.initScene(); 
+main.bak:  //construct the raytracer
+main.bak:  raytracer testTracer(&testScene, resX, resY);
+main.bak:  testTracer.setTraceDepth(traceDepth);
+main.bak:  testTracer.setAntiAlias(antiAlias);
+main.bak:  //beging raytracing
+main.bak:  float nrPixels = resX*resY;
+main.bak:  int renderedPixels = 0;
+main.bak:  for (int i=0; i<resX; i++)
+main.bak:  { 
+main.bak:    for (int j=0; j<resY; j++)
+main.bak:    {
+main.bak:      //cout << "begin rendering of pixel: " << i << " " << j << "\n";
+main.bak:      color pixelColor;
+main.bak:      pixelColor = testTracer.renderPixel(i,j);
+main.bak:      //cout << pixelColor.getR();
+main.bak:      QuickCG::pset(i,j,QuickCG::ColorRGB(pixelColor.getR()*255,pixelColor.getG()*255,pixelColor.getB()*255));
+main.bak:      renderedPixels++;
+main.bak:      float percentage = renderedPixels*100/nrPixels;
+main.bak:      if (percentage - int(renderedPixels*100/nrPixels) == 0)
+main.bak:        cout << percentage << " percent done...\n";
+main.bak:    }
+main.bak:  }
+main.bak:  QuickCG::print(line,8,8);
+main.bak: 
+main.bak:  //on screen!
+main.bak:  QuickCG::redraw();
+main.bak:  QuickCG::sleep();
+main.bak:void testAlgebra() {
+main.bak:  cout << endl;
+main.bak:  cout << "----------vector-matrix-test-----------------" << endl;
+main.bak:  vector3d a(0.0f,4.0f,2.0f);
+main.bak:  a.print("a");
+main.bak:  matrix A(4,4);
+main.bak:  matrix identity = matrix::getIdentityMatrix();
+main.bak:  identity.print("I");
+main.bak:  vector3d b = identity * a;
+main.bak:  b.print("b");
+main.bak:  matrix RX = matrix::getRotateXMatrix(90.0f);
+main.bak:  matrix RY = matrix::getRotateYMatrix(90.0f);
+main.bak:  matrix RZ = matrix::getRotateZMatrix(90.0f);
+main.bak:  RX.print("rotateX");
+main.bak:  b = RX * a;
+main.bak:  b.print("b");
+main.bak:  b = RY * b;
+main.bak:  b.print("b");
+main.bak:  b = RZ * b;
+main.bak:  b.print("b");
+main.bak:  matrix C = identity * identity;
+main.bak:  C.print("C");
+main.bak:  matrix D = identity*RZ*RY*RX;
+main.bak:  D.print("D");
+main.bak:  b = D*a;
+main.bak:  b.print("b");
+main.bak:  matrix E(4,4);
+main.bak:  E.setEntryByIndex(0,1,5.0f); 
+main.bak:  E.setEntryByIndex(1,0,6.0f); 
+main.bak:  E.print("E");
+main.bak:  E = identity * E;
+main.bak:  E.print("E");
+main.bak:  cout << "----------transformation-test----------------" << endl;
+main.bak:  transformation test; 
+main.bak:  test.getTrafoMatrix().print("test trafo");
+main.bak:void testTrigonometry() {
+main.bak:  cout << "PI : " << PI << endl;
+main.bak:  cout << "cos(PI) : " << cos(PI) << endl;
+main.bak:  cout << "sin(PI) : " << sin(PI) << endl;
+main.cpp:// main.cpp 
+main.cpp://system classes
+main.cpp:#include <iostream>
+main.cpp:#include <fstream>
+main.cpp:#include <cstring>
+main.cpp:#include <cmath>
+main.cpp:#include <vector>
+main.cpp://raytracer classes
+main.cpp:#include "const.h"
+main.cpp:#include "frame.h"
+main.cpp:#include "camera.h"
+main.cpp:#include "scene.h"
+main.cpp:#include "raytracer.h"
+main.cpp:#include "quickcg.h"
+main.cpp:#include "matrix.h"
+main.cpp:#include "transformation.h"
+main.cpp:#define resX 600 
+main.cpp:#define resY 400
+main.cpp:#define traceDepth 3
+main.cpp:#define antiAlias 2
+main.cpp:using namespace std;
+main.cpp://global procedures
+main.cpp:void testAlgebra();
+main.cpp:void testTrigonometry();
+main.cpp:void render();
+main.cpp:int main(int /*argc*/, char */*argv*/[])
+main.cpp:  //test
+main.cpp:  //testAlgebra();
+main.cpp:  //test
+main.cpp:  //testTrigonometry();
+main.cpp:  //start render
+main.cpp:  render();
+main.cpp:  return 0;
+main.cpp:void render() {
+main.cpp:  //local variables
+main.cpp:  //read in variables
+main.cpp:  string test="hello";
+main.cpp:  char filename[128];
+main.cpp:  char line[1024];
+main.cpp:  ifstream file;
+main.cpp:  //cout << "Dateiname:" << flush;
+main.cpp:  //cin.getline(filename,127);
+main.cpp:  //filename = "tracerAttributes.txt";
+main.cpp:  file.open("tracerAttributes.txt",ios::in);  
+main.cpp:  if (file.good())
+main.cpp:  {
+main.cpp:    file.seekg(0L,ios::beg);
+main.cpp:  //  while (!file.eof())
+main.cpp:  //  {
+main.cpp:      file.getline(line,1024);
+main.cpp:  //  }
+main.cpp:  }
+main.cpp:  //create the grafic window
+main.cpp:  QuickCG::screen(resX, resY, 0, "raytracing test");
+main.cpp:  //create the scene
+main.cpp:  scene testScene;
+main.cpp:  //testScene.initScene(); 
+main.cpp:  //construct the raytracer
+main.cpp:  raytracer testTracer(&testScene, resX, resY);
+main.cpp:  testTracer.setTraceDepth(traceDepth);
+main.cpp:  testTracer.setAntiAlias(antiAlias);
+main.cpp:  //beging raytracing
+main.cpp:  float nrPixels = resX*resY;
+main.cpp:  int renderedPixels = 0;
+main.cpp:  for (int i=0; i<resX; i++)
+main.cpp:  { 
+main.cpp:    for (int j=0; j<resY; j++)
+main.cpp:    {
+main.cpp:      //cout << "begin rendering of pixel: " << i << " " << j << "\n";
+main.cpp:      color pixelColor;
+main.cpp:      pixelColor = testTracer.renderPixel(i,j);
+main.cpp:      //cout << pixelColor.getR();
+main.cpp:      QuickCG::pset(i,j,QuickCG::ColorRGB(pixelColor.getR()*255,pixelColor.getG()*255,pixelColor.getB()*255));
+main.cpp:      renderedPixels++;
+main.cpp:      float percentage = renderedPixels*100/nrPixels;
+main.cpp:      if (percentage - int(renderedPixels*100/nrPixels) == 0)
+main.cpp:        cout << percentage << " percent done...\n";
+main.cpp:    }
+main.cpp:  }
+main.cpp:  QuickCG::print(line,8,8);
+main.cpp: 
+main.cpp:  //on screen!
+main.cpp:  QuickCG::redraw();
+main.cpp:  QuickCG::sleep();
+main.cpp:void testAlgebra() {
+main.cpp:  cout << endl;
+main.cpp:  cout << "----------vector-matrix-test-----------------" << endl;
+main.cpp:  vector3d a(0.0f,4.0f,2.0f);
+main.cpp:  a.print("a");
+main.cpp:  
+main.cpp:  matrix identity = matrix::getIdentityMatrix();
+main.cpp:  identity.print("I");
+main.cpp:  vector3d b = identity * a;
+main.cpp:  b.print("b");
+main.cpp:  matrix RX = matrix::getRotateXMatrix(70.0);
+main.cpp:  matrix RY = matrix::getRotateYMatrix(45.0);
+main.cpp:  matrix RZ = matrix::getRotateZMatrix(30.0);
+main.cpp:  RX.print("RX");
+main.cpp:  RY.print("RY");
+main.cpp:  RZ.print("RZ");
+main.cpp:  (RX.transpose()*RX).print("RX.transpose()*RX");
+main.cpp:  matrix D = RZ*RY*RX;
+main.cpp:  matrix E = RX.transpose()*RY.transpose()*RZ.transpose();
+main.cpp:  D.print("D = RZ*RY*RX");
+main.cpp:  E.print("RX.transpose()*RY.transpose()*RZ.transpose()");
+main.cpp:  D.transpose().print("D.transpose()");
+main.cpp: 
+main.cpp:  (RX*b).print("RX*b");
+main.cpp:  (RX.transpose()*b).print("RX.transpose()*b");
+main.cpp:  (RX.transpose()*(RX*b)).print("RX.transpose()*(RX*b)");
+main.cpp:  (D*b).print("D*b");
+main.cpp:  (RZ*(RY*(RX*b))).print("RZ*(RY*(RX*b))");
+main.cpp:  (D.transpose()*D).print("D.transpose()*D");
+main.cpp:  (D*E).print("D*E");
+main.cpp:  b.print("b");
+main.cpp:  (RX.transpose()*RY.transpose()*RY*RX).print("RX.transpose()*RY.transpose()*RY*RX");
+main.cpp:  (D.transpose()*D*b).print("b");
+main.cpp:  cout << "----------transformation-test----------------" << endl;
+main.cpp:  transformation test; 
+main.cpp:  test.getTrafoMatrix().print("test trafo");
+main.cpp:void testTrigonometry() {
+main.cpp:  cout << "PI : " << PI << endl;
+main.cpp:  cout << "cos(PI) : " << cos(PI) << endl;
+main.cpp:  cout << "sin(PI) : " << sin(PI) << endl;
+material.cpp:#include "material.h"
+material.cpp:material::material() {
+material.cpp:material::material(color aColor) {
+material.cpp:	mColor = aColor;
+material.cpp:	mKDiffuse = 0.7f;
+material.cpp:	mKSpecular = 0.2f;
+material.cpp:	mKAmbient = 0.1f;
+material.cpp:        mReflect = 0.0f;
+material.cpp:        mRefract = 0.0f;
+material.cpp:        mRefrIndex = 1.0f;
+material.h:#ifndef _MATERIAL_
+material.h:#define _MATERIAL_
+material.h:#include "color.h"
+material.h:#include "material.h"
+material.h:class material {
+material.h:  public:
+material.h:    material();
+material.h:    material(color aColor);
+material.h:    color getColor(){return mColor;};
+material.h:    float getSpecular(){return mKSpecular;};
+material.h:    float getDiffuse(){return mKDiffuse;};
+material.h:    float getAmbient(){return mKAmbient;};
+material.h:    float getReflect(){return mReflect;};
+material.h:    float getRefract(){return mRefract;};
+material.h:    float getRefrIndex(){return mRefrIndex;};
+material.h:    void setColor(color aColor){mColor=aColor;};
+material.h:    void setDiffuse(float aKDiff){mKDiffuse=aKDiff;};
+material.h:    void setSpecular(float aKSpec){mKSpecular=aKSpec;};
+material.h:    void setAmbient(float aKAmb){mKAmbient=aKAmb;};
+material.h:    void setReflect(float aReflect){mReflect=aReflect;};
+material.h:    void setRefract(float aRefract){mRefract=aRefract;};
+material.h:    void setRefrIndex(float aRefrIndex){mRefrIndex = aRefrIndex;};
+material.h:  private:
+material.h:    color mColor;
+material.h:    float mKDiffuse,mKSpecular,mKAmbient;
+material.h:    float mReflect,mRefract;
+material.h:    float mRefrIndex;
+matrix.cpp:#include <iostream>
+matrix.cpp:#include <cmath>
+matrix.cpp:#include "matrix.h"
+matrix.cpp:#include "const.h"
+matrix.cpp:using namespace std;
+matrix.cpp:matrix::matrix() {
+matrix.cpp:  
+matrix.cpp:  setNumRows(4);
+matrix.cpp:  setNumCols(4);
+matrix.cpp:  mMatrix[0][0] = 0; mMatrix[0][1] = 0; mMatrix[0][2] = 0; mMatrix[0][3] = 0;  
+matrix.cpp:  mMatrix[1][0] = 0; mMatrix[1][1] = 0; mMatrix[1][2] = 0; mMatrix[1][3] = 0;  
+matrix.cpp:  mMatrix[2][0] = 0; mMatrix[2][1] = 0; mMatrix[2][2] = 0; mMatrix[2][3] = 0;  
+matrix.cpp:  mMatrix[3][0] = 0; mMatrix[3][1] = 0; mMatrix[3][2] = 0; mMatrix[3][3] = 0;  
+matrix.cpp:matrix::matrix(int numRows, int numCols) {
+matrix.cpp:  
+matrix.cpp:  setNumRows(numRows);
+matrix.cpp:  setNumCols(numCols);
+matrix.cpp:  mMatrix[0][0] = 0; mMatrix[0][1] = 0; mMatrix[0][2] = 0; mMatrix[0][3] = 0;  
+matrix.cpp:  mMatrix[1][0] = 0; mMatrix[1][1] = 0; mMatrix[1][2] = 0; mMatrix[1][3] = 0;  
+matrix.cpp:  mMatrix[2][0] = 0; mMatrix[2][1] = 0; mMatrix[2][2] = 0; mMatrix[2][3] = 0;  
+matrix.cpp:  mMatrix[3][0] = 0; mMatrix[3][1] = 0; mMatrix[3][2] = 0; mMatrix[3][3] = 0;  
+matrix.cpp:matrix::matrix(int numRows, int numCols,
+matrix.cpp:               float a00, float a01, float a02, float a03,
+matrix.cpp:               float a10, float a11, float a12, float a13,
+matrix.cpp:               float a20, float a21, float a22, float a23,
+matrix.cpp:               float a30, float a31, float a32, float a33) {
+matrix.cpp:  setNumRows(numRows);
+matrix.cpp:  setNumCols(numCols);
+matrix.cpp:  mMatrix[0][0] = a00; mMatrix[0][1] = a01; mMatrix[0][2] = a02; mMatrix[0][3] = a03;  
+matrix.cpp:  mMatrix[1][0] = a10; mMatrix[1][1] = a11; mMatrix[1][2] = a12; mMatrix[1][3] = a13;  
+matrix.cpp:  mMatrix[2][0] = a20; mMatrix[2][1] = a21; mMatrix[2][2] = a22; mMatrix[2][3] = a23;  
+matrix.cpp:  mMatrix[3][0] = a30; mMatrix[3][1] = a31; mMatrix[3][2] = a32; mMatrix[3][3] = a33;  
+matrix.cpp:vector3d matrix::operator * (vector3d x) {
+matrix.cpp:  vector3d y(0,0,0);
+matrix.cpp:  y.x = mMatrix[0][0]*x.x+mMatrix[0][1]*x.y+mMatrix[0][2]*x.z;
+matrix.cpp:  y.y = mMatrix[1][0]*x.x+mMatrix[1][1]*x.y+mMatrix[1][2]*x.z;
+matrix.cpp:  y.z = mMatrix[2][0]*x.x+mMatrix[2][1]*x.y+mMatrix[2][2]*x.z;
+matrix.cpp:  return y;
+matrix.cpp:matrix matrix::operator * (matrix B) {
+matrix.cpp:  matrix product(4,4);
+matrix.cpp:  for (int i=0; i<4; i++)
+matrix.cpp:    for (int j=0; j<4; j++)
+matrix.cpp:    {
+matrix.cpp:      for (int k=0; k<4; k++)
+matrix.cpp:      {
+matrix.cpp:        float add = getEntryByIndex(j,k) * B.getEntryByIndex(k,i);
+matrix.cpp:        product.setEntryByIndex(j,i,product.getEntryByIndex(j,i)+add); 
+matrix.cpp:      }
+matrix.cpp:    }  
+matrix.cpp:  return product;
+matrix.cpp:matrix matrix::getTranslationMatrix(float x, float y, float z) {
+matrix.cpp:  matrix translation(4,4,
+matrix.cpp:                     1.0f, 0.0f, 0.0f,   x,
+matrix.cpp:                     0.0f, 0.0f, 0.0f,   y,
+matrix.cpp:                     0.0f, 0.0f, 0.0f,   z,
+matrix.cpp:                     0.0f, 0.0f, 0.0f, 1.0f);
+matrix.cpp:  return translation;
+matrix.cpp:matrix matrix::getRotateXMatrix(float alpha) {
+matrix.cpp:  float cosAlpha = cos(alpha/180*PI);
+matrix.cpp:  float sinAlpha = sin(alpha/180*PI);
+matrix.cpp:  if (cosAlpha < 1.e-10) cosAlpha=0;
+matrix.cpp:  if (sinAlpha < 1.e-10) sinAlpha=0;
+matrix.cpp:  matrix rotateX(4,4,
+matrix.cpp:                 1.0f,    0.0f,     0.0f, 0.0f,
+matrix.cpp:                 0.0f,cosAlpha,-sinAlpha, 0.0f,
+matrix.cpp:                 0.0f,sinAlpha, cosAlpha, 0.0f,
+matrix.cpp:                 0.0f,    0.0f,     0.0f, 1.0f);
+matrix.cpp:  return rotateX;
+matrix.cpp:matrix matrix::getRotateYMatrix(float alpha) {
+matrix.cpp:  float cosAlpha = cos(alpha/180*PI);
+matrix.cpp:  float sinAlpha = sin(alpha/180*PI);
+matrix.cpp:  if (cosAlpha < 1.e-10) cosAlpha=0;
+matrix.cpp:  if (sinAlpha < 1.e-10) sinAlpha=0;
+matrix.cpp:  matrix rotateY(4,4,
+matrix.cpp:                 cosAlpha,  0.0f, sinAlpha, 0.0f,
+matrix.cpp:                 0.0f,      1.0f,     0.0f, 0.0f,
+matrix.cpp:                 -sinAlpha, 0.0f, cosAlpha, 0.0f,
+matrix.cpp:                 0.0f,      0.0f,     0.0f, 1.0f);
+matrix.cpp:  return rotateY;
+matrix.cpp:matrix matrix::getRotateZMatrix(float alpha) {
+matrix.cpp:  float cosAlpha = cos(alpha/180*PI);
+matrix.cpp:  float sinAlpha = sin(alpha/180*PI);
+matrix.cpp:  if (cosAlpha < 1.e-10) cosAlpha=0;
+matrix.cpp:  if (sinAlpha < 1.e-10) sinAlpha=0;
+matrix.cpp:  matrix rotateZ(4,4,
+matrix.cpp:                 cosAlpha,-sinAlpha, 0.0f, 0.0f,
+matrix.cpp:                 sinAlpha, cosAlpha, 0.0f, 0.0f,
+matrix.cpp:                     0.0f,     0.0f, 1.0f, 0.0f, 
+matrix.cpp:                     0.0f,     0.0f, 0.0f, 1.0f);
+matrix.cpp:  return rotateZ;
+matrix.cpp:matrix matrix::getIdentityMatrix() {
+matrix.cpp:  matrix identity(4,4,
+matrix.cpp:                  1,0,0,0,
+matrix.cpp:                  0,1,0,0,
+matrix.cpp:                  0,0,1,0,
+matrix.cpp:                  0,0,0,1);
+matrix.cpp:  return identity;
+matrix.cpp:matrix matrix::transpose() {
+matrix.cpp:  matrix transpose(getNumRows(),getNumCols());
+matrix.cpp:  for (int i=0;i<getNumRows();i++)
+matrix.cpp:    for (int j=0;j<getNumCols();j++)
+matrix.cpp:      transpose.setEntryByIndex(i,j,getEntryByIndex(j,i));
+matrix.cpp:  return transpose;
+matrix.cpp:void matrix::print(string name) {
+matrix.cpp:  cout << "matrix " << name << " : " << endl;
+matrix.cpp:  for (int i=0; i<getNumRows(); i++)
+matrix.cpp:   for (int j=0; j<getNumCols(); j++)
+matrix.cpp:   { 
+matrix.cpp:     if ((j!=0) && j%(getNumCols()-1)==0)
+matrix.cpp:       cout << getEntryByIndex(i,j) << endl;
+matrix.cpp:     else cout << getEntryByIndex(i,j) << " ";
+matrix.cpp:   }
+matrix.h:#ifndef _MATRIX_
+matrix.h:#define _MATRIX_
+matrix.h:#include <vector>
+matrix.h:#include <iostream>
+matrix.h:#include "vector3d.h"
+matrix.h:class matrix {
+matrix.h:  public:
+matrix.h:    matrix();
+matrix.h:    matrix(int numRows, int numCols);
+matrix.h:    matrix(int numRows, int numCols,
+matrix.h:           float a00, float a01, float a02, float a03,
+matrix.h:           float a10, float a11, float a12, float a13,
+matrix.h:           float a20, float a21, float a22, float a23,
+matrix.h:           float a30, float a31, float a32, float a33);
+matrix.h:    static matrix getIdentityMatrix();
+matrix.h:    static matrix getTranslationMatrix(float x, float y, float z);
+matrix.h:    static matrix getRotateXMatrix(float angle);
+matrix.h:    static matrix getRotateYMatrix(float angle);
+matrix.h:    static matrix getRotateZMatrix(float angle);
+matrix.h:   
+matrix.h:    vector3d operator * (vector3d x);
+matrix.h:    matrix operator * (matrix B); 
+matrix.h:   
+matrix.h:    void print(std::string name);
+matrix.h:    int getNumRows(){return numRows;};
+matrix.h:    int getNumCols(){return numCols;};
+matrix.h:    
+matrix.h:    matrix transpose();
+matrix.h:    float getEntryByIndex(int i, int j) {return mMatrix[i][j];};
+matrix.h:    float setEntryByIndex(int i, int j, float a) {mMatrix[i][j] = a;};
+matrix.h:    void setNumRows(int nr){numRows = nr;};
+matrix.h:    void setNumCols(int nc){numCols = nc;};
+matrix.h:  private:
+matrix.h:    int numRows,numCols;
+matrix.h:    float mMatrix[4][4];
+plane.cpp:#include "plane.h"
+plane.cpp:#include "ray.h"
+plane.cpp:#include "vector3d.h"
+plane.cpp:#include <math.h>
+plane.cpp:plane::plane() {
+plane.cpp:plane::plane(vector3d position, vector3d normal,
+plane.cpp:             float length, float width) : primitive(position) {
+plane.cpp:  mNormal = normal;
+plane.cpp:  mLength = length;
+plane.cpp:  mWidth = width;
+plane.cpp:float plane::intersect(ray ray) {
+plane.cpp:  float t = 0;
+plane.cpp:  vector3d o = ray.getOrigin();
+plane.cpp:  vector3d d = ray.getDirection();
+plane.cpp:  vector3d p = getPosition();
+plane.cpp:  float dn = d * mNormal;
+plane.cpp:  if (dn != 0) 
+plane.cpp:  {
+plane.cpp:    t = mNormal * (p - o) / dn;
+plane.cpp:    if (t>0.01f)
+plane.cpp:    {
+plane.cpp:    vector3d distance = o + t*d - p;
+plane.cpp:    if (distance.getLength() > getLength()) t = -1;
+plane.cpp:    //if ((abs(distance.getX()) > getLength()) && (abs(distance.getY()) > getWidth()))
+plane.cpp:    //t = -1;
+plane.cpp:    } else t=-1;
+plane.cpp:  } else t=-1;
+plane.cpp:  return t;
+plane.cpp:vector3d plane::getNormal(vector3d p) {
+plane.cpp:  return mNormal;
+plane.h:#ifndef _PLANE_
+plane.h:#define _PLANE_
+plane.h:#include "vector3d.h"
+plane.h:#include "primitive.h"
+plane.h:class plane : public primitive {
+plane.h:		plane(vector3d position, vector3d normal,
+plane.h:				float length, float width);
+plane.h:		float intersect(ray ray);
+plane.h:		float getLength(){return mLength;};
+plane.h:		float getWidth(){return mWidth;};
+plane.h:		vector3d getNormal(vector3d p);
+plane.h:		vector3d mNormal;
+plane.h:		float mLength, mWidth;
+primitive.cpp:#include "primitive.h"
+primitive.cpp:#include "matrix.h"
+primitive.cpp:primitive::primitive() {
+primitive.cpp:primitive::primitive(vector3d position) {
+primitive.cpp:  mPosition = position;
+primitive.cpp:  mTranslate = matrix::getIdentityMatrix();
+primitive.cpp:  mRotate   = matrix::getIdentityMatrix();
+primitive.cpp:void primitive::translate(float x, float y, float z) {
+primitive.cpp:  mTranslate = matrix::getTranslationMatrix(x,y,z); 
+primitive.cpp:void primitive::rotate(float x, float y, float z) {
+primitive.cpp:  matrix RX = matrix::getRotateXMatrix(x); 
+primitive.cpp:  matrix RY = matrix::getRotateYMatrix(y); 
+primitive.cpp:  matrix RZ = matrix::getRotateZMatrix(z);
+primitive.cpp:  mRotate = RZ*RY*RX; 
+primitive.h:#ifndef _PRIMITIVE_
+primitive.h:#define _PRIMITIVE_
+primitive.h:#include "vector3d.h"
+primitive.h:#include "color.h"
+primitive.h:#include "ray.h"
+primitive.h:#include "material.h"
+primitive.h:#include "matrix.h"
+primitive.h:class primitive{
+primitive.h:  public:
+primitive.h:    primitive();
+primitive.h:    primitive(vector3d position_in);
+primitive.h:    vector3d getPosition() {return mPosition;};
+primitive.h:    material* getMaterial() {return &mMaterial;};
+primitive.h:    void setMaterial(material aMaterial) {mMaterial=aMaterial;};
+primitive.h:    void translate(float x, float y, float z);
+primitive.h:    void rotate(float x, float y, float z);
+primitive.h:    virtual float intersect(ray ray) = 0;
+primitive.h:    virtual vector3d getNormal(vector3d p) = 0;
+primitive.h:    
+primitive.h:  private:
+primitive.h:    vector3d mPosition;
+primitive.h:    material mMaterial;
+primitive.h:    matrix   mtrafo;
+primitive.h:    matrix   mTranslate;
+primitive.h:    matrix   mRotate;
+quickcg.cpp:QuickCG 20071121
+quickcg.cpp:Copyright (c) 2004-2007, Lode Vandevenne
+quickcg.cpp:All rights reserved.
+quickcg.cpp:Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+quickcg.cpp:    * Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+quickcg.cpp:    * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+quickcg.cpp:THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+quickcg.cpp:"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+quickcg.cpp:LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+quickcg.cpp:A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+quickcg.cpp:CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+quickcg.cpp:EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+quickcg.cpp:PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+quickcg.cpp:PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+quickcg.cpp:LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+quickcg.cpp:NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+quickcg.cpp:SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+quickcg.cpp:QuickCG is an SDL codebase that wraps some of the SDL functionality.
+quickcg.cpp:It' used by Lode's Computer Graphics Tutorial to work with simple C++ calls
+quickcg.cpp:to demonstrate graphical programs.
+quickcg.cpp:QuickCG can handle some things that standard C++ doesn't but that are commonly useful, such as:
+quickcg.cpp:-drawing graphics
+quickcg.cpp:-a bitmap font
+quickcg.cpp:-simplified saving and loading of files
+quickcg.cpp:-reading keyboard and mouse input
+quickcg.cpp:-playing sound
+quickcg.cpp:-color models
+quickcg.cpp:-loading images
+quickcg.cpp:#include "quickcg.h"
+quickcg.cpp:#include <SDL/SDL.h>
+quickcg.cpp:#include <cstdlib>
+quickcg.cpp:#include <cmath>
+quickcg.cpp:#include <vector>
+quickcg.cpp:#include <map>
+quickcg.cpp:#include <iostream>
+quickcg.cpp:#include <fstream>
+quickcg.cpp:namespace QuickCG
+quickcg.cpp:int w; //width of the screen
+quickcg.cpp:int h; //height of the screen
+quickcg.cpp:std::map<int, bool> keypressed; //for the "keyPressed" function to detect a keypress only once
+quickcg.cpp:SDL_Surface* scr; //the single SDL surface used
+quickcg.cpp:Uint8* inkeys;
+quickcg.cpp:SDL_Event event = {0};
+quickcg.cpp://KEYBOARD FUNCTIONS////////////////////////////////////////////////////////////
+quickcg.cpp:bool keyDown(int key) //this checks if the key is held down, returns true all the time until the key is up
+quickcg.cpp:  return (inkeys[key] != 0);
+quickcg.cpp:bool keyPressed(int key) //this checks if the key is *just* pressed, returns true only once until the key is up again
+quickcg.cpp:  if(keypressed.find(key) == keypressed.end()) keypressed[key] = false;
+quickcg.cpp:  if(inkeys[key])
+quickcg.cpp:  {
+quickcg.cpp:    if(keypressed[key] == false)
+quickcg.cpp:    {
+quickcg.cpp:      keypressed[key] = true;
+quickcg.cpp:      return true;
+quickcg.cpp:    }
+quickcg.cpp:  }
+quickcg.cpp:  else keypressed[key] = false;
+quickcg.cpp:  
+quickcg.cpp:  return false;
+quickcg.cpp://BASIC SCREEN FUNCTIONS////////////////////////////////////////////////////////
+quickcg.cpp://The screen function: sets up the window for 32-bit color graphics.
+quickcg.cpp://Creates a graphical screen of width*height pixels in 32-bit color.
+quickcg.cpp://Set fullscreen to 0 for a window, or to 1 for fullscreen output
+quickcg.cpp://text is the caption or title of the window
+quickcg.cpp://also inits SDL
+quickcg.cpp:void screen(int width, int height, bool fullscreen, const std::string& text)
+quickcg.cpp:  int colorDepth = 32;
+quickcg.cpp:  w = width;
+quickcg.cpp:  h = height;
+quickcg.cpp:  if(SDL_Init(SDL_INIT_EVERYTHING) < 0)
+quickcg.cpp:  {
+quickcg.cpp:    printf("Unable to init SDL: %s\n", SDL_GetError());
+quickcg.cpp:    SDL_Quit();
+quickcg.cpp:    std::exit(1);
+quickcg.cpp:  }
+quickcg.cpp:  std::atexit(SDL_Quit);
+quickcg.cpp:  if(fullscreen)
+quickcg.cpp:  {
+quickcg.cpp:    scr = SDL_SetVideoMode(width, height, colorDepth, SDL_SWSURFACE | SDL_FULLSCREEN);
+quickcg.cpp:    lock();
+quickcg.cpp:  }
+quickcg.cpp:  else
+quickcg.cpp:  {
+quickcg.cpp:    scr = SDL_SetVideoMode(width, height, colorDepth, SDL_HWSURFACE | SDL_HWPALETTE);
+quickcg.cpp:  }
+quickcg.cpp:  if(scr == NULL)
+quickcg.cpp:  {
+quickcg.cpp:    printf("Unable to set video: %s\n", SDL_GetError());
+quickcg.cpp:    SDL_Quit();
+quickcg.cpp:    std::exit(1);
+quickcg.cpp:  }
+quickcg.cpp:  SDL_WM_SetCaption(text.c_str(), NULL);
+quickcg.cpp:  
+quickcg.cpp:  SDL_EnableUNICODE(1); //for the text input things
+quickcg.cpp://Locks the screen
+quickcg.cpp:void lock()
+quickcg.cpp:  if(SDL_MUSTLOCK(scr))
+quickcg.cpp:  if(SDL_LockSurface(scr) < 0)
+quickcg.cpp:  return;
+quickcg.cpp://Unlocks the screen
+quickcg.cpp:void unlock()
+quickcg.cpp:  if(SDL_MUSTLOCK(scr))
+quickcg.cpp:  SDL_UnlockSurface(scr);
+quickcg.cpp://Updates the screen.  Has to be called to view new pixels, but use only after
+quickcg.cpp://drawing the whole screen because it's slow.
+quickcg.cpp:void redraw()
+quickcg.cpp:  SDL_UpdateRect(scr, 0, 0, 0, 0);
+quickcg.cpp://Clears the screen to black
+quickcg.cpp:void cls(const ColorRGB& color)
+quickcg.cpp:  SDL_FillRect(scr, NULL, 65536 * color.r + 256 * color.g + color.b);
+quickcg.cpp://Puts an RGB color pixel at position x,y
+quickcg.cpp:void pset(int x, int y, const ColorRGB& color)
+quickcg.cpp:  if(x < 0 || y < 0 || x >= w || y >= h) return;
+quickcg.cpp:  Uint32 colorSDL = SDL_MapRGB(scr->format, color.r, color.g, color.b);
+quickcg.cpp:  Uint32* bufp;
+quickcg.cpp:  bufp = (Uint32*)scr->pixels + y * scr->pitch / 4 + x;
+quickcg.cpp:  *bufp = colorSDL;
+quickcg.cpp://Gets RGB color of pixel at position x,y
+quickcg.cpp:ColorRGB pget(int x, int y)
+quickcg.cpp:  if(x < 0 || y < 0 || x >= w || y >= h) return RGB_Black;
+quickcg.cpp:  Uint32* bufp;
+quickcg.cpp:  bufp = (Uint32*)scr->pixels + y * scr->pitch / 4 + x;
+quickcg.cpp:  Uint32 colorSDL = *bufp;
+quickcg.cpp:  ColorRGB8bit colorRGB;
+quickcg.cpp:  SDL_GetRGB(colorSDL, scr->format, &colorRGB.r, &colorRGB.g, &colorRGB.b);
+quickcg.cpp:  return ColorRGB(colorRGB);
+quickcg.cpp://Draws a buffer of pixels to the screen
+quickcg.cpp:void drawBuffer(Uint32* buffer)
+quickcg.cpp:  Uint32* bufp;
+quickcg.cpp:  bufp = (Uint32*)scr->pixels;
+quickcg.cpp:  
+quickcg.cpp:  for(int y = 0; y < h; y++)
+quickcg.cpp:  {
+quickcg.cpp:    for(int x = 0; x < w; x++)
+quickcg.cpp:    {
+quickcg.cpp:      *bufp=buffer[h * x + y];
+quickcg.cpp:      bufp++;
+quickcg.cpp:    }
+quickcg.cpp:    bufp += scr->pitch / 4;
+quickcg.cpp:    bufp -= w;
+quickcg.cpp:  }
+quickcg.cpp:void getScreenBuffer(std::vector<Uint32>& buffer)
+quickcg.cpp:  Uint32* bufp;
+quickcg.cpp:  bufp = (Uint32*)scr->pixels;
+quickcg.cpp:  
+quickcg.cpp:  buffer.resize(w * h);
+quickcg.cpp:  
+quickcg.cpp:  for(int y = 0; y < h; y++)
+quickcg.cpp:  {
+quickcg.cpp:    for(int x = 0; x < w; x++)
+quickcg.cpp:    {
+quickcg.cpp:       buffer[h * x + y] = *bufp;
+quickcg.cpp:       bufp++;
+quickcg.cpp:    }
+quickcg.cpp:    bufp += scr->pitch / 4;
+quickcg.cpp:    bufp -= w;
+quickcg.cpp:  }
+quickcg.cpp:bool onScreen(int x, int y)
+quickcg.cpp:  return (x >= 0 && y >= 0 && x < w && y < h);
+quickcg.cpp://NON GRAPHICAL FUNCTIONS///////////////////////////////////////////////////////
+quickcg.cpp://Waits until you press a key. First the key has to be loose, this means, if you put two sleep functions in a row, the second will only work after you first released the key.
+quickcg.cpp:void sleep()
+quickcg.cpp:  int done = 0;
+quickcg.cpp:  while(done == 0)
+quickcg.cpp:  {
+quickcg.cpp:    while(SDL_PollEvent(&event))
+quickcg.cpp:    {
+quickcg.cpp:      if(event.type == SDL_QUIT) end();
+quickcg.cpp:      if(event.type == SDL_KEYDOWN) done = 1;
+quickcg.cpp:    }
+quickcg.cpp:    SDL_Delay(5); //so it consumes less processing power
+quickcg.cpp:  }
+quickcg.cpp:void waitFrame(double oldTime, double frameDuration) //in seconds
+quickcg.cpp:  float time = getTime();
+quickcg.cpp:  while(time - oldTime < frameDuration)
+quickcg.cpp:  {
+quickcg.cpp:    time = getTime();
+quickcg.cpp:    SDL_PollEvent(&event);
+quickcg.cpp:    if(event.type == SDL_QUIT) end();
+quickcg.cpp:    inkeys = SDL_GetKeyState(NULL);
+quickcg.cpp:    if(inkeys[SDLK_ESCAPE]) end();
+quickcg.cpp:    SDL_Delay(5); //so it consumes less processing power
+quickcg.cpp:  }
+quickcg.cpp://Returns 1 if you close the window or press the escape key. Also handles everything that's needed per frame.
+quickcg.cpp://Never put key input code right before done() or SDL may see the key as SDL_QUIT
+quickcg.cpp:bool done(bool quit_if_esc, bool delay) //delay makes CPU have some free time, use once per frame to avoid 100% usage of a CPU core
+quickcg.cpp:  if(delay) SDL_Delay(5); //so it consumes less processing power
+quickcg.cpp:  int done = 0;
+quickcg.cpp:  if(!SDL_PollEvent(&event)) return 0;
+quickcg.cpp:  readKeys();
+quickcg.cpp:  if(quit_if_esc && inkeys[SDLK_ESCAPE]) done = 1;
+quickcg.cpp:  if(event.type == SDL_QUIT) done = 1;
+quickcg.cpp:  return done;
+quickcg.cpp://Ends the program
+quickcg.cpp:void end()
+quickcg.cpp:  SDL_Quit();
+quickcg.cpp:  std::exit(1);
+quickcg.cpp://Gives value of pressed key to inkeys.
+quickcg.cpp://the variable inkeys can then be used anywhere to check for input
+quickcg.cpp://Normally you have to use readkeys every time you want to use inkeys, but the done() function also uses inkeys so it's not needed to use readkeys if you use done().
+quickcg.cpp:void readKeys()
+quickcg.cpp:  inkeys = SDL_GetKeyState(NULL);
+quickcg.cpp:void getMouseState(int& mouseX, int& mouseY)
+quickcg.cpp:  SDL_GetMouseState(&mouseX, &mouseY);
+quickcg.cpp:void getMouseState(int& mouseX, int& mouseY, bool& LMB, bool& RMB)
+quickcg.cpp:  Uint8 mouseState = SDL_GetMouseState(&mouseX, &mouseY);
+quickcg.cpp:  
+quickcg.cpp:  if(mouseState & 1) LMB = true; 
+quickcg.cpp:  else LMB = false;
+quickcg.cpp:  if(mouseState & 4) RMB = true; 
+quickcg.cpp:  else RMB = false;
+quickcg.cpp:}  
+quickcg.cpp://Returns the time in milliseconds since the program started
+quickcg.cpp:unsigned long getTicks()
+quickcg.cpp:  return SDL_GetTicks();
+quickcg.cpp://2D SHAPES/////////////////////////////////////////////////////////////////////
+quickcg.cpp://Fast horizontal line from (x1,y) to (x2,y), with rgb color
+quickcg.cpp:bool horLine(int y, int x1, int x2, const ColorRGB& color)
+quickcg.cpp:  if(x2 < x1) {x1 += x2; x2 = x1 - x2; x1 -= x2;} //swap x1 and x2, x1 must be the leftmost endpoint   
+quickcg.cpp:  if(x2 < 0 || x1 >= w || y < 0 || y >= h) return 0; //no single point of the line is on screen
+quickcg.cpp:  if(x1 < 0) x1 = 0; //clip
+quickcg.cpp:  if(x2 >= w) x2 = w - 1; //clip
+quickcg.cpp:  
+quickcg.cpp:  Uint32 colorSDL = SDL_MapRGB(scr->format, color.r, color.g, color.b);
+quickcg.cpp:  Uint32* bufp;
+quickcg.cpp:  bufp = (Uint32*)scr->pixels + y * scr->pitch / 4 + x1;
+quickcg.cpp:  for(int x = x1; x <= x2; x++)
+quickcg.cpp:  {
+quickcg.cpp:    *bufp = colorSDL;
+quickcg.cpp:    bufp++;
+quickcg.cpp:  }
+quickcg.cpp:  return 1;
+quickcg.cpp://Fast vertical line from (x,y1) to (x,y2), with rgb color
+quickcg.cpp:bool verLine(int x, int y1, int y2, const ColorRGB& color)
+quickcg.cpp:  if(y2 < y1) {y1 += y2; y2 = y1 - y2; y1 -= y2;} //swap y1 and y2
+quickcg.cpp:  if(y2 < 0 || y1 >= h  || x < 0 || x >= w) return 0; //no single point of the line is on screen
+quickcg.cpp:  if(y1 < 0) y1 = 0; //clip
+quickcg.cpp:  if(y2 >= w) y2 = h - 1; //clip
+quickcg.cpp:   
+quickcg.cpp:  Uint32 colorSDL = SDL_MapRGB(scr->format, color.r, color.g, color.b);
+quickcg.cpp:  Uint32* bufp;
+quickcg.cpp:  
+quickcg.cpp:  bufp = (Uint32*)scr->pixels + y1 * scr->pitch / 4 + x;
+quickcg.cpp:  for(int y = y1; y <= y2; y++)
+quickcg.cpp:  {
+quickcg.cpp:     *bufp = colorSDL;
+quickcg.cpp:     bufp += scr->pitch / 4;
+quickcg.cpp:  }
+quickcg.cpp:  return 1;
+quickcg.cpp://Bresenham line from (x1,y1) to (x2,y2) with rgb color
+quickcg.cpp:bool drawLine(int x1, int y1, int x2, int y2, const ColorRGB& color)
+quickcg.cpp:  if(x1 < 0 || x1 > w - 1 || x2 < 0 || x2 > w - 1 || y1 < 0 || y1 > h - 1 || y2 < 0 || y2 > h - 1) return 0;
+quickcg.cpp:  
+quickcg.cpp:  int deltax = std::abs(x2 - x1); //The difference between the x's
+quickcg.cpp:  int deltay = std::abs(y2 - y1); //The difference between the y's
+quickcg.cpp:  int x = x1; //Start x off at the first pixel
+quickcg.cpp:  int y = y1; //Start y off at the first pixel
+quickcg.cpp:  int xinc1, xinc2, yinc1, yinc2, den, num, numadd, numpixels, curpixel;
+quickcg.cpp:  if(x2 >= x1) //The x-values are increasing
+quickcg.cpp:  {
+quickcg.cpp:    xinc1 = 1;
+quickcg.cpp:    xinc2 = 1;
+quickcg.cpp:  }
+quickcg.cpp:  else //The x-values are decreasing
+quickcg.cpp:  {
+quickcg.cpp:    xinc1 = -1;
+quickcg.cpp:    xinc2 = -1;
+quickcg.cpp:  }
+quickcg.cpp:  if(y2 >= y1) //The y-values are increasing
+quickcg.cpp:  {
+quickcg.cpp:    yinc1 = 1;
+quickcg.cpp:    yinc2 = 1;
+quickcg.cpp:  }
+quickcg.cpp:  else //The y-values are decreasing
+quickcg.cpp:  {
+quickcg.cpp:    yinc1 = -1;
+quickcg.cpp:    yinc2 = -1;
+quickcg.cpp:  }
+quickcg.cpp:  if (deltax >= deltay) //There is at least one x-value for every y-value
+quickcg.cpp:  {
+quickcg.cpp:    xinc1 = 0; //Don't change the x when numerator >= denominator
+quickcg.cpp:    yinc2 = 0; //Don't change the y for every iteration
+quickcg.cpp:    den = deltax;
+quickcg.cpp:    num = deltax / 2;
+quickcg.cpp:    numadd = deltay;
+quickcg.cpp:    numpixels = deltax; //There are more x-values than y-values
+quickcg.cpp:  }
+quickcg.cpp:  else //There is at least one y-value for every x-value
+quickcg.cpp:  {
+quickcg.cpp:    xinc2 = 0; //Don't change the x for every iteration
+quickcg.cpp:    yinc1 = 0; //Don't change the y when numerator >= denominator
+quickcg.cpp:    den = deltay;
+quickcg.cpp:    num = deltay / 2;
+quickcg.cpp:    numadd = deltax;
+quickcg.cpp:    numpixels = deltay; //There are more y-values than x-values
+quickcg.cpp:  }
+quickcg.cpp:  for (curpixel = 0; curpixel <= numpixels; curpixel++)
+quickcg.cpp:  {
+quickcg.cpp:    pset(x % w, y % h, color);  //Draw the current pixel
+quickcg.cpp:    num += numadd;  //Increase the numerator by the top of the fraction
+quickcg.cpp:    if (num >= den) //Check if numerator >= denominator
+quickcg.cpp:    {
+quickcg.cpp:      num -= den; //Calculate the new numerator value
+quickcg.cpp:      x += xinc1; //Change the x as appropriate
+quickcg.cpp:      y += yinc1; //Change the y as appropriate
+quickcg.cpp:    }
+quickcg.cpp:    x += xinc2; //Change the x as appropriate
+quickcg.cpp:    y += yinc2; //Change the y as appropriate
+quickcg.cpp:  }
+quickcg.cpp:  
+quickcg.cpp:  return 1;
+quickcg.cpp://Bresenham circle with center at (xc,yc) with radius and red green blue color
+quickcg.cpp:bool drawCircle(int xc, int yc, int radius, const ColorRGB& color)
+quickcg.cpp:  if(xc - radius < 0 || xc + radius >= w || yc - radius < 0 || yc + radius >= h) return 0;
+quickcg.cpp:  int x = 0;
+quickcg.cpp:  int y = radius;
+quickcg.cpp:  int p = 3 - (radius << 1);
+quickcg.cpp:  int a, b, c, d, e, f, g, h;
+quickcg.cpp:  while (x <= y)
+quickcg.cpp:  {
+quickcg.cpp:     a = xc + x; //8 pixels can be calculated at once thanks to the symmetry
+quickcg.cpp:     b = yc + y;
+quickcg.cpp:     c = xc - x;
+quickcg.cpp:     d = yc - y;
+quickcg.cpp:     e = xc + y;
+quickcg.cpp:     f = yc + x;
+quickcg.cpp:     g = xc - y;
+quickcg.cpp:     h = yc - x;
+quickcg.cpp:     pset(a, b, color);
+quickcg.cpp:     pset(c, d, color);
+quickcg.cpp:     pset(e, f, color);
+quickcg.cpp:     pset(g, f, color);
+quickcg.cpp:     if(x > 0) //avoid drawing pixels at same position as the other ones
+quickcg.cpp:     {
+quickcg.cpp:       pset(a, d, color);
+quickcg.cpp:       pset(c, b, color);
+quickcg.cpp:       pset(e, h, color);
+quickcg.cpp:       pset(g, h, color);
+quickcg.cpp:     }
+quickcg.cpp:     if(p < 0) p += (x++ << 2) + 6;
+quickcg.cpp:     else p += ((x++ - y--) << 2) + 10;
+quickcg.cpp:  }
+quickcg.cpp:  
+quickcg.cpp:  return 1;
+quickcg.cpp://Filled bresenham circle with center at (xc,yc) with radius and red green blue color
+quickcg.cpp:bool drawDisk(int xc, int yc, int radius, const ColorRGB& color)
+quickcg.cpp:  if(xc + radius < 0 || xc - radius >= w || yc + radius < 0 || yc - radius >= h) return 0; //every single pixel outside screen, so don't waste time on it
+quickcg.cpp:  int x = 0;
+quickcg.cpp:  int y = radius;
+quickcg.cpp:  int p = 3 - (radius << 1);
+quickcg.cpp:  int a, b, c, d, e, f, g, h;
+quickcg.cpp:  int pb = yc + radius + 1, pd = yc + radius + 1; //previous values: to avoid drawing horizontal lines multiple times  (ensure initial value is outside the range)
+quickcg.cpp:  while (x <= y)
+quickcg.cpp:  {
+quickcg.cpp:     // write data
+quickcg.cpp:     a = xc + x;
+quickcg.cpp:     b = yc + y;
+quickcg.cpp:     c = xc - x;
+quickcg.cpp:     d = yc - y;
+quickcg.cpp:     e = xc + y;
+quickcg.cpp:     f = yc + x;
+quickcg.cpp:     g = xc - y;
+quickcg.cpp:     h = yc - x;
+quickcg.cpp:     if(b != pb) horLine(b, a, c, color);
+quickcg.cpp:     if(d != pd) horLine(d, a, c, color);
+quickcg.cpp:     if(f != b)  horLine(f, e, g, color);
+quickcg.cpp:     if(h != d && h != f) horLine(h, e, g, color);
+quickcg.cpp:     pb = b;
+quickcg.cpp:     pd = d;
+quickcg.cpp:     if(p < 0) p += (x++ << 2) + 6;
+quickcg.cpp:     else p += ((x++ - y--) << 2) + 10;
+quickcg.cpp:  }
+quickcg.cpp:  
+quickcg.cpp:  return 1;
+quickcg.cpp://Rectangle with corners (x1,y1) and (x2,y2) and rgb color
+quickcg.cpp:bool drawRect(int x1, int y1, int x2, int y2, const ColorRGB& color)
+quickcg.cpp:  if(x1 < 0 || x1 > w - 1 || x2 < 0 || x2 > w - 1 || y1 < 0 || y1 > h - 1 || y2 < 0 || y2 > h - 1) return 0;
+quickcg.cpp:  SDL_Rect rec;
+quickcg.cpp:  rec.x = x1;
+quickcg.cpp:  rec.y = y1;
+quickcg.cpp:  rec.w = x2 - x1 + 1;
+quickcg.cpp:  rec.h = y2 - y1 + 1;
+quickcg.cpp:  Uint32 colorSDL = SDL_MapRGB(scr->format, color.r, color.g, color.b);
+quickcg.cpp:  SDL_FillRect(scr, &rec, colorSDL);  //SDL's ability to draw a hardware rectangle is used for now
+quickcg.cpp:  return 1;
+quickcg.cpp://Functions for clipping a 2D line to the screen, which is the rectangle (0,0)-(w,h)
+quickcg.cpp://This is the Cohen-Sutherland Clipping Algorithm
+quickcg.cpp://Each of 9 regions gets an outcode, based on if it's at the top, bottom, left or right of the screen
+quickcg.cpp:// 1001 1000 1010  9 8 10
+quickcg.cpp:// 0001 0000 0010  1 0 2
+quickcg.cpp:// 0101 0100 0110  5 4 6
+quickcg.cpp://int findregion returns which of the 9 regions a point is in, void clipline does the actual clipping
+quickcg.cpp:int findRegion(int x, int y)
+quickcg.cpp:  int code=0;
+quickcg.cpp:  if(y >= h)
+quickcg.cpp:  code |= 1; //top
+quickcg.cpp:  else if( y < 0)
+quickcg.cpp:  code |= 2; //bottom
+quickcg.cpp:  if(x >= w)
+quickcg.cpp:  code |= 4; //right
+quickcg.cpp:  else if ( x < 0)
+quickcg.cpp:  code |= 8; //left
+quickcg.cpp:  return(code);
+quickcg.cpp:bool clipLine(int x1, int y1, int x2, int y2, int & x3, int & y3, int & x4, int & y4)
+quickcg.cpp:  int code1, code2, codeout;
+quickcg.cpp:  bool accept = 0, done=0;
+quickcg.cpp:  code1 = findRegion(x1, y1); //the region outcodes for the endpoints
+quickcg.cpp:  code2 = findRegion(x2, y2);
+quickcg.cpp:  do  //In theory, this can never end up in an infinite loop, it'll always come in one of the trivial cases eventually
+quickcg.cpp:  {
+quickcg.cpp:    if(!(code1 | code2)) accept = done = 1;  //accept because both endpoints are in screen or on the border, trivial accept
+quickcg.cpp:    else if(code1 & code2) done = 1; //the line isn't visible on screen, trivial reject
+quickcg.cpp:    else  //if no trivial reject or accept, continue the loop
+quickcg.cpp:    {
+quickcg.cpp:      int x, y;
+quickcg.cpp:      codeout = code1 ? code1 : code2;
+quickcg.cpp:      if(codeout & 1) //top
+quickcg.cpp:      {
+quickcg.cpp:        x = x1 + (x2 - x1) * (h - y1) / (y2 - y1);
+quickcg.cpp:        y = h - 1;
+quickcg.cpp:      }
+quickcg.cpp:      else if(codeout & 2) //bottom
+quickcg.cpp:      {
+quickcg.cpp:        x = x1 + (x2 - x1) * -y1 / (y2 - y1);
+quickcg.cpp:        y = 0;
+quickcg.cpp:      }
+quickcg.cpp:      else if(codeout & 4) //right
+quickcg.cpp:      {
+quickcg.cpp:        y = y1 + (y2 - y1) * (w - x1) / (x2 - x1);
+quickcg.cpp:        x = w - 1;
+quickcg.cpp:      }
+quickcg.cpp:      else //left
+quickcg.cpp:      {
+quickcg.cpp:        y = y1 + (y2 - y1) * -x1 / (x2 - x1);
+quickcg.cpp:        x = 0;
+quickcg.cpp:      }
+quickcg.cpp:      if(codeout == code1) //first endpoint was clipped
+quickcg.cpp:      {
+quickcg.cpp:        x1 = x; y1 = y;
+quickcg.cpp:        code1 = findRegion(x1, y1);
+quickcg.cpp:      }
+quickcg.cpp:      else //second endpoint was clipped
+quickcg.cpp:      {
+quickcg.cpp:        x2 = x; y2 = y;
+quickcg.cpp:        code2 = findRegion(x2, y2);
+quickcg.cpp:      }
+quickcg.cpp:    }
+quickcg.cpp:  }
+quickcg.cpp:  while(done == 0);
+quickcg.cpp:  if(accept)
+quickcg.cpp:  {
+quickcg.cpp:    x3 = x1;
+quickcg.cpp:    x4 = x2;
+quickcg.cpp:    y3 = y1;
+quickcg.cpp:    y4 = y2;
+quickcg.cpp:    return 1;
+quickcg.cpp:  }
+quickcg.cpp:  else
+quickcg.cpp:  {
+quickcg.cpp:    x3 = x4 = y3 = y4 = 0;
+quickcg.cpp:    return 0;
+quickcg.cpp:  }
+quickcg.cpp://COLOR STRUCTS/////////////////////////////////////////////////////////////////
+quickcg.cpp:ColorRGB::ColorRGB(Uint8 r, Uint8 g, Uint8 b)
+quickcg.cpp:  this->r = r;
+quickcg.cpp:  this->g = g;
+quickcg.cpp:  this->b = b;
+quickcg.cpp:ColorRGB::ColorRGB(const ColorRGB8bit& color)
+quickcg.cpp:  this->r = color.r;
+quickcg.cpp:  this->g = color.g;
+quickcg.cpp:  this->b = color.b;
+quickcg.cpp:  this->r = 0;
+quickcg.cpp:  this->g = 0;
+quickcg.cpp:  this->b = 0;
+quickcg.cpp:ColorRGB8bit::ColorRGB8bit(Uint8 r, Uint8 g, Uint8 b)
+quickcg.cpp:  this->r = r;
+quickcg.cpp:  this->g = g;
+quickcg.cpp:  this->b = b;
+quickcg.cpp:ColorRGB8bit::ColorRGB8bit(const ColorRGB& color)
+quickcg.cpp:  this->r = color.r;
+quickcg.cpp:  this->g = color.g;
+quickcg.cpp:  this->b = color.b;
+quickcg.cpp:  this->r = 0;
+quickcg.cpp:  this->g = 0;
+quickcg.cpp:  this->b = 0;
+quickcg.cpp://Add two colors
+quickcg.cpp:ColorRGB operator+(const ColorRGB& color, const ColorRGB& color2)
+quickcg.cpp:  ColorRGB c;
+quickcg.cpp:  c.r = color.r + color2.r;
+quickcg.cpp:  c.g = color.g + color2.g;
+quickcg.cpp:  c.b = color.b + color2.b;
+quickcg.cpp:  return c;
+quickcg.cpp://Subtract two colors
+quickcg.cpp:ColorRGB operator-(const ColorRGB& color, const ColorRGB& color2)
+quickcg.cpp:  ColorRGB c;
+quickcg.cpp:  c.r = color.r - color2.r;
+quickcg.cpp:  c.g = color.g - color2.g;
+quickcg.cpp:  c.b = color.b - color2.b;
+quickcg.cpp:  return c;
+quickcg.cpp://Multiplies a color with an integer
+quickcg.cpp:ColorRGB operator*(const ColorRGB& color, int a)
+quickcg.cpp:  ColorRGB c;
+quickcg.cpp:  c.r = color.r * a;
+quickcg.cpp:  c.g = color.g * a;
+quickcg.cpp:  c.b = color.b * a;
+quickcg.cpp:  return c;
+quickcg.cpp://Multiplies a color with an integer
+quickcg.cpp:ColorRGB operator*(int a, const ColorRGB& color)
+quickcg.cpp:  ColorRGB c;
+quickcg.cpp:  c.r = color.r * a;
+quickcg.cpp:  c.g = color.g * a;
+quickcg.cpp:  c.b = color.b * a;
+quickcg.cpp:  return c;
+quickcg.cpp://Divides a color through an integer
+quickcg.cpp:ColorRGB operator/(const ColorRGB& color, int a)
+quickcg.cpp:  if(a == 0) return color;
+quickcg.cpp:  ColorRGB c;
+quickcg.cpp:  c.r = color.r / a;
+quickcg.cpp:  c.g = color.g / a;
+quickcg.cpp:  c.b = color.b / a;
+quickcg.cpp:  return c;
+quickcg.cpp://Are both colors equal?
+quickcg.cpp:bool operator==(const ColorRGB& color, const ColorRGB& color2)
+quickcg.cpp:  return(color.r == color2.r && color.g == color2.g && color.b == color2.b);
+quickcg.cpp://Are both colors not equal?
+quickcg.cpp:bool operator!=(const ColorRGB& color, const ColorRGB& color2)
+quickcg.cpp:  return(!(color.r == color2.r && color.g == color2.g && color.b == color2.b));
+quickcg.cpp:ColorHSL::ColorHSL(Uint8 h, Uint8 s, Uint8 l)
+quickcg.cpp:  this->h = h;
+quickcg.cpp:  this->s = s;
+quickcg.cpp:  this->l = l;
+quickcg.cpp:  this->h = 0;
+quickcg.cpp:  this->s = 0;
+quickcg.cpp:  this->l = 0;
+quickcg.cpp:ColorHSV::ColorHSV(Uint8 h, Uint8 s, Uint8 v)
+quickcg.cpp:  this->h = h;
+quickcg.cpp:  this->s = s;
+quickcg.cpp:  this->v = v;
+quickcg.cpp:  this->h = 0;
+quickcg.cpp:  this->s = 0;
+quickcg.cpp:  this->v = 0;
+quickcg.cpp://COLOR CONVERSIONS/////////////////////////////////////////////////////////////
+quickcg.cpp:Convert colors from one type to another
+quickcg.cpp:r=red  g=green  b=blue  h=hue  s=saturation  l=lightness  v=value
+quickcg.cpp:Color components from the color structs are Uint8's between 0 and 255
+quickcg.cpp:color components used in the calculations are normalized between 0.0-1.0
+quickcg.cpp://Converts an RGB color to HSL color
+quickcg.cpp:ColorHSL RGBtoHSL(const ColorRGB& colorRGB)
+quickcg.cpp:  float r, g, b, h = 0, s = 0, l; //this function works with floats between 0 and 1
+quickcg.cpp:  r = colorRGB.r / 256.0;
+quickcg.cpp:  g = colorRGB.g / 256.0;
+quickcg.cpp:  b = colorRGB.b / 256.0;
+quickcg.cpp:  float maxColor = std::max(r, std::max(g, b));
+quickcg.cpp:  float minColor = std::min(r, std::min(g, b));
+quickcg.cpp:  if(minColor == maxColor) //R = G = B, so it's a shade of grey
+quickcg.cpp:  {
+quickcg.cpp:    h = 0; //it doesn't matter what value it has
+quickcg.cpp:    s = 0;
+quickcg.cpp:    l = r; //doesn't matter if you pick r, g, or b
+quickcg.cpp:  }
+quickcg.cpp:  else
+quickcg.cpp:  {
+quickcg.cpp:    l = (minColor + maxColor) / 2;
+quickcg.cpp:    if(l < 0.5) s = (maxColor - minColor) / (maxColor + minColor);
+quickcg.cpp:    if(l >= 0.5) s = (maxColor - minColor) / (2.0 - maxColor - minColor);
+quickcg.cpp:    if(r == maxColor) h = (g - b) / (maxColor - minColor);
+quickcg.cpp:    if(g == maxColor) h = 2.0 + (b - r) / (maxColor - minColor);
+quickcg.cpp:    if(b == maxColor) h = 4.0 + (r - g) / (maxColor - minColor);
+quickcg.cpp:    h /= 6; //to bring it to a number between 0 and 1
+quickcg.cpp:    if(h < 0) h += 1;
+quickcg.cpp:  }
+quickcg.cpp:  
+quickcg.cpp:  ColorHSL colorHSL;
+quickcg.cpp:  colorHSL.h = int(h * 255.0);
+quickcg.cpp:  colorHSL.s = int(s * 255.0);
+quickcg.cpp:  colorHSL.l = int(l * 255.0);
+quickcg.cpp:  return colorHSL;
+quickcg.cpp://Converts an HSL color to RGB color
+quickcg.cpp:ColorRGB HSLtoRGB(const ColorHSL& colorHSL)
+quickcg.cpp:  float r, g, b, h, s, l; //this function works with floats between 0 and 1
+quickcg.cpp:  float temp1, temp2, tempr, tempg, tempb;
+quickcg.cpp:  h = colorHSL.h / 256.0;
+quickcg.cpp:  s = colorHSL.s / 256.0;
+quickcg.cpp:  l = colorHSL.l / 256.0;
+quickcg.cpp:  //If saturation is 0, the color is a shade of grey
+quickcg.cpp:  if(s == 0) r = g = b = l;
+quickcg.cpp:  //If saturation > 0, more complex calculations are needed
+quickcg.cpp:  else
+quickcg.cpp:  {
+quickcg.cpp:    //set the temporary values
+quickcg.cpp:    if(l < 0.5) temp2 = l * (1 + s);
+quickcg.cpp:    else temp2 = (l + s) - (l * s);
+quickcg.cpp:    temp1 = 2 * l - temp2;
+quickcg.cpp:    tempr=h + 1.0 / 3.0;
+quickcg.cpp:    if(tempr > 1.0) tempr--;
+quickcg.cpp:    tempg=h;
+quickcg.cpp:    tempb=h-1.0 / 3.0;
+quickcg.cpp:    if(tempb < 0.0) tempb++;
+quickcg.cpp:    //red
+quickcg.cpp:    if(tempr < 1.0 / 6.0) r = temp1 + (temp2 - temp1) * 6.0 * tempr;
+quickcg.cpp:    else if(tempr < 0.5) r = temp2;
+quickcg.cpp:    else if(tempr < 2.0 / 3.0) r = temp1 + (temp2 - temp1) * ((2.0 / 3.0) - tempr) * 6.0;
+quickcg.cpp:    else r = temp1;
+quickcg.cpp:    
+quickcg.cpp:     //green
+quickcg.cpp:    if(tempg < 1.0 / 6.0) g = temp1 + (temp2 - temp1) * 6.0 * tempg;
+quickcg.cpp:    else if(tempg < 0.5) g=temp2;
+quickcg.cpp:    else if(tempg < 2.0 / 3.0) g = temp1 + (temp2 - temp1) * ((2.0 / 3.0) - tempg) * 6.0;
+quickcg.cpp:    else g = temp1;
+quickcg.cpp:    //blue
+quickcg.cpp:    if(tempb < 1.0 / 6.0) b = temp1 + (temp2 - temp1) * 6.0 * tempb;
+quickcg.cpp:    else if(tempb < 0.5) b = temp2;
+quickcg.cpp:    else if(tempb < 2.0 / 3.0) b = temp1 + (temp2 - temp1) * ((2.0 / 3.0) - tempb) * 6.0;
+quickcg.cpp:    else b = temp1;
+quickcg.cpp:  }
+quickcg.cpp:  ColorRGB colorRGB;
+quickcg.cpp:  colorRGB.r = int(r * 255.0);
+quickcg.cpp:  colorRGB.g = int(g * 255.0);
+quickcg.cpp:  colorRGB.b = int(b * 255.0);
+quickcg.cpp:  return colorRGB;
+quickcg.cpp://Converts an RGB color to HSV color
+quickcg.cpp:ColorHSV RGBtoHSV(const ColorRGB& colorRGB)
+quickcg.cpp:  float r, g, b, h = 0.0, s = 0.0, v; //this function works with floats between 0 and 1
+quickcg.cpp:  r = colorRGB.r / 256.0;
+quickcg.cpp:  g = colorRGB.g / 256.0;
+quickcg.cpp:  b = colorRGB.b / 256.0;
+quickcg.cpp:  float maxColor = std::max(r, std::max(g, b));
+quickcg.cpp:  float minColor = std::min(r, std::min(g, b));
+quickcg.cpp:  v = maxColor;
+quickcg.cpp:  if(maxColor != 0.0) //avoid division by zero when the color is black
+quickcg.cpp:  {
+quickcg.cpp:    s = (maxColor - minColor) / maxColor;
+quickcg.cpp:  }
+quickcg.cpp:  
+quickcg.cpp:  if(s == 0.0)
+quickcg.cpp:  {
+quickcg.cpp:    h = 0.0; //it doesn't matter what value it has
+quickcg.cpp:  }
+quickcg.cpp:  else
+quickcg.cpp:  {
+quickcg.cpp:    if(r == maxColor) h = (g - b) / (maxColor - minColor);
+quickcg.cpp:    if(g == maxColor) h = 2.0 + (b - r) / (maxColor - minColor);
+quickcg.cpp:    if(b == maxColor) h = 4.0 + (r - g) / (maxColor - minColor);
+quickcg.cpp:    h /= 6.0; //to bring it to a number between 0 and 1
+quickcg.cpp:    if(h < 0.0) h++;
+quickcg.cpp:  }
+quickcg.cpp:  ColorHSV colorHSV;
+quickcg.cpp:  colorHSV.h = int(h * 255.0);
+quickcg.cpp:  colorHSV.s = int(s * 255.0);
+quickcg.cpp:  colorHSV.v = int(v * 255.0);
+quickcg.cpp:  return colorHSV;
+quickcg.cpp://Converts an HSV color to RGB color
+quickcg.cpp:ColorRGB HSVtoRGB(const ColorHSV& colorHSV)
+quickcg.cpp:  float r, g, b, h, s, v; //this function works with floats between 0 and 1
+quickcg.cpp:  h = colorHSV.h / 256.0;
+quickcg.cpp:  s = colorHSV.s / 256.0;
+quickcg.cpp:  v = colorHSV.v / 256.0;
+quickcg.cpp:  //if saturation is 0, the color is a shade of grey
+quickcg.cpp:  if(s == 0.0) r = g = b = v;
+quickcg.cpp:  //if saturation > 0, more complex calculations are needed
+quickcg.cpp:  else
+quickcg.cpp:  {
+quickcg.cpp:    float f, p, q, t;
+quickcg.cpp:    int i;
+quickcg.cpp:    h *= 6.0; //to bring hue to a number between 0 and 6, better for the calculations
+quickcg.cpp:    i = int(floor(h)); //e.g. 2.7 becomes 2 and 3.01 becomes 3 or 4.9999 becomes 4
+quickcg.cpp:    f = h - i;//the fractional part of h
+quickcg.cpp:    p = v * (1.0 - s);
+quickcg.cpp:    q = v * (1.0 - (s * f));
+quickcg.cpp:    t = v * (1.0 - (s * (1.0 - f)));
+quickcg.cpp:    switch(i)
+quickcg.cpp:    {
+quickcg.cpp:      case 0: r=v; g=t; b=p; break;
+quickcg.cpp:      case 1: r=q; g=v; b=p; break;
+quickcg.cpp:      case 2: r=p; g=v; b=t; break;
+quickcg.cpp:      case 3: r=p; g=q; b=v; break;
+quickcg.cpp:      case 4: r=t; g=p; b=v; break;
+quickcg.cpp:      case 5: r=v; g=p; b=q; break;
+quickcg.cpp:      default: r = g = b = 0; break;
+quickcg.cpp:    }
+quickcg.cpp:  }
+quickcg.cpp:  ColorRGB colorRGB;
+quickcg.cpp:  colorRGB.r = int(r * 255.0);
+quickcg.cpp:  colorRGB.g = int(g * 255.0);
+quickcg.cpp:  colorRGB.b = int(b * 255.0);
+quickcg.cpp:  return colorRGB;
+quickcg.cpp:Uint32 RGBtoINT(const ColorRGB& colorRGB)
+quickcg.cpp:  return 65536 * colorRGB.r + 256 * colorRGB.g + colorRGB.b;
+quickcg.cpp:ColorRGB INTtoRGB(Uint32 colorINT)
+quickcg.cpp:  ColorRGB colorRGB;
+quickcg.cpp:  colorRGB.r = (colorINT / 65536) % 256;
+quickcg.cpp:  colorRGB.g = (colorINT / 256) % 256;
+quickcg.cpp:  colorRGB.b = colorINT % 256;
+quickcg.cpp:  return colorRGB;
+quickcg.cpp:}  
+quickcg.cpp://FILE FUNCTIONS////////////////////////////////////////////////////////////////
+quickcg.cpp:void loadFile(std::vector<unsigned char>& buffer, const std::string& filename) //designed for loading files from hard disk in an std::vector
+quickcg.cpp:  std::ifstream file(filename.c_str(), std::ios::in|std::ios::binary|std::ios::ate);
+quickcg.cpp:  //get filesize
+quickcg.cpp:  std::streamsize size = 0;
+quickcg.cpp:  if(file.seekg(0, std::ios::end).good()) size = file.tellg();
+quickcg.cpp:  if(file.seekg(0, std::ios::beg).good()) size -= file.tellg();
+quickcg.cpp:  //read contents of the file into the vector
+quickcg.cpp:  buffer.resize(size_t(size));
+quickcg.cpp:  if(size > 0) file.read((char*)(&buffer[0]), size);
+quickcg.cpp://write given buffer to the file, overwriting the file, it doesn't append to it.
+quickcg.cpp:void saveFile(const std::vector<unsigned char>& buffer, const std::string& filename)
+quickcg.cpp:  std::ofstream file(filename.c_str(), std::ios::out|std::ios::binary);
+quickcg.cpp:  file.write(buffer.size() ? (char*)&buffer[0] : 0, std::streamsize(buffer.size()));
+quickcg.cpp://IMAGE FUNCTIONS///////////////////////////////////////////////////////////////
+quickcg.cpp:int loadImage(std::vector<ColorRGB>& out, unsigned long& w, unsigned long& h, const std::string& filename)
+quickcg.cpp:  std::vector<unsigned char> file, image;
+quickcg.cpp:  loadFile(file, filename);
+quickcg.cpp:  if(decodePNG(image, w, h, file)) return 1;
+quickcg.cpp:  
+quickcg.cpp:  out.resize(image.size() / 4);
+quickcg.cpp:  
+quickcg.cpp:  for(size_t i = 0; i < out.size(); i++)
+quickcg.cpp:  {
+quickcg.cpp:    out[i].r = image[i * 4 + 0];
+quickcg.cpp:    out[i].g = image[i * 4 + 1];
+quickcg.cpp:    out[i].b = image[i * 4 + 2];
+quickcg.cpp:    //out[i].a = image[i * 4 + 3];
+quickcg.cpp:  }
+quickcg.cpp:  
+quickcg.cpp:  return 0;
+quickcg.cpp:int loadImage(std::vector<Uint32>& out, unsigned long& w, unsigned long& h, const std::string& filename)
+quickcg.cpp:  std::vector<unsigned char> file, image;
+quickcg.cpp:  loadFile(file, filename);
+quickcg.cpp:  if(decodePNG(image, w, h, file)) return 1;
+quickcg.cpp:  
+quickcg.cpp:  out.resize(image.size() / 4);
+quickcg.cpp:  
+quickcg.cpp:  for(size_t i = 0; i < out.size(); i++)
+quickcg.cpp:  {
+quickcg.cpp:    out[i] = 0x1000000 * image[i * 4 + 3] + 0x10000 * image[i * 4 + 0] + 0x100 * image[i * 4 + 1] + image[i * 4 + 2];
+quickcg.cpp:  }
+quickcg.cpp:  
+quickcg.cpp:  return 0;
+quickcg.cpp://TEXT FUNCTIONS////////////////////////////////////////////////////////////////
+quickcg.cpp://Draws character n at position x,y with color RGB and, if enabled, background color
+quickcg.cpp://This function is used by the text printing functions below, and uses the font data
+quickcg.cpp://defined below to draw the letter pixel by pixel
+quickcg.cpp:void drawLetter(unsigned char n, int x, int y, const ColorRGB& color, bool bg, const ColorRGB& color2)
+quickcg.cpp:  int u,v;
+quickcg.cpp:  for (v = 0; v < 8; v++)
+quickcg.cpp:  for (u = 0; u < 8; u++)
+quickcg.cpp:  {
+quickcg.cpp:    if(font[n][u][v]) pset(x + u, y + v, color);
+quickcg.cpp:    else if(bg) pset(x + u, y + v, color2);
+quickcg.cpp:  }
+quickcg.cpp://Draws a string of text
+quickcg.cpp:int printString(const std::string& text, int x, int y, const ColorRGB& color, bool bg, const ColorRGB& color2, int forceLength)
+quickcg.cpp:  int amount = 0;
+quickcg.cpp:  for(size_t i = 0; i < text.size(); i++)
+quickcg.cpp:  {
+quickcg.cpp:    amount++;
+quickcg.cpp:    drawLetter(text[i], x, y, color, bg, color2);
+quickcg.cpp:    x += 8;
+quickcg.cpp:    if(x > w - 8) {x %= 8; y += 8;}
+quickcg.cpp:    if(y > h - 8) {y %= 8;}
+quickcg.cpp:  }
+quickcg.cpp:  while(amount < forceLength)
+quickcg.cpp:  {
+quickcg.cpp:    amount++;
+quickcg.cpp:    drawLetter(' ', x, y, color, bg, color2);
+quickcg.cpp:    x += 8;
+quickcg.cpp:    if(x > w - 8) {x %= 8; y += 8;}
+quickcg.cpp:    if(y > h - 8) {y %= 8;}
+quickcg.cpp:  }
+quickcg.cpp:  return h * x + y;
+quickcg.cpp://TEXT INPUT FUNCTIONS//////////////////////////////////////////////////////////
+quickcg.cpp:const int ASCII_ENTER = 13;
+quickcg.cpp:const int ASCII_BACKSPACE = 8;
+quickcg.cpp:const int ASCII_SPACE = 32; //smallest printable ascii char
+quickcg.cpp:Uint8 getInputCharacter()
+quickcg.cpp:  int ascii = 0;
+quickcg.cpp:  static int previouschar = 0;
+quickcg.cpp:  
+quickcg.cpp:  if ((event.key.keysym.unicode & 0xFF80) == 0)
+quickcg.cpp:  {
+quickcg.cpp:    if(event.type == SDL_KEYDOWN)
+quickcg.cpp:    {
+quickcg.cpp:      ascii = event.key.keysym.unicode & 0x7F;
+quickcg.cpp:    }
+quickcg.cpp:  }
+quickcg.cpp:  
+quickcg.cpp:  if(ascii < ASCII_SPACE && ascii != ASCII_ENTER && ascii != ASCII_BACKSPACE) ascii = 0; //<32 ones, except enter and backspace
+quickcg.cpp:  
+quickcg.cpp:  if(ascii != previouschar) previouschar = ascii;
+quickcg.cpp:  else ascii = 0;
+quickcg.cpp:  
+quickcg.cpp:  return ascii;
+quickcg.cpp://returns a string, length is the maximum length of the given string array
+quickcg.cpp:void getInputString(std::string& text, const std::string& message, bool clear, int x, int y, const ColorRGB& color, bool bg, const ColorRGB& color2)
+quickcg.cpp:  std::vector<Uint32> screenBuffer;
+quickcg.cpp:  getScreenBuffer(screenBuffer);
+quickcg.cpp:  
+quickcg.cpp:  bool enter = 0;
+quickcg.cpp:  bool change = 1;
+quickcg.cpp:  text.clear();
+quickcg.cpp:  
+quickcg.cpp:  while(enter == 0)
+quickcg.cpp:  {
+quickcg.cpp:    if(done()) end();
+quickcg.cpp:    Uint8 temp = getInputCharacter();
+quickcg.cpp:    if(temp >= ASCII_SPACE)
+quickcg.cpp:    {
+quickcg.cpp:      text.push_back(temp);
+quickcg.cpp:      change = 1;
+quickcg.cpp:    }
+quickcg.cpp:    if(temp == ASCII_BACKSPACE && text.size() > 0) {text.resize(text.size() - 1); change = 1; }
+quickcg.cpp:    if(change)
+quickcg.cpp:    {
+quickcg.cpp:      drawBuffer(&screenBuffer[0]);
+quickcg.cpp:      int pos = print(message, x, y, color, bg, color2);
+quickcg.cpp:      int x2 = pos / h, y2 = pos % h;
+quickcg.cpp:      print(text, x2, y2, color, bg, color2);
+quickcg.cpp:      redraw();
+quickcg.cpp:    }
+quickcg.cpp:    if(temp == ASCII_ENTER) {enter = 1;}
+quickcg.cpp:  }
+quickcg.cpp:  
+quickcg.cpp:  //remove the input stuff from the screen again so there is room for possible next input
+quickcg.cpp:  if(clear)
+quickcg.cpp:  {
+quickcg.cpp:    drawBuffer(&screenBuffer[0]);
+quickcg.cpp:    redraw();
+quickcg.cpp:  }
+quickcg.cpp:void encodeBase64(const std::vector<unsigned char>& in, std::string& out)
+quickcg.cpp:  const std::string characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+quickcg.cpp:  unsigned long bit24 = 0;
+quickcg.cpp:  unsigned long sextet[4] = {0, 0, 0, 0};
+quickcg.cpp:  unsigned long octet[3] = {0, 0, 0};
+quickcg.cpp:  
+quickcg.cpp:  out.clear();
+quickcg.cpp:  out.reserve((4 * in.size()) / 3);
+quickcg.cpp:  
+quickcg.cpp:  for(size_t pos = 0; pos < in.size(); pos += 3)
+quickcg.cpp:  {
+quickcg.cpp:    octet[0] = in[pos + 0];
+quickcg.cpp:    octet[1] = (pos + 1 < in.size()) ? in[pos + 1] : 0;
+quickcg.cpp:    octet[2] = (pos + 2 < in.size()) ? in[pos + 2] : 0;
+quickcg.cpp:    
+quickcg.cpp:    bit24  = 256 * 256 * octet[0];
+quickcg.cpp:    bit24 +=       256 * octet[1];
+quickcg.cpp:    bit24 +=             octet[2];
+quickcg.cpp:    
+quickcg.cpp:    sextet[0] = (bit24 / (64 * 64 * 64)) % 64;
+quickcg.cpp:    sextet[1] = (bit24 / (     64 * 64)) % 64;
+quickcg.cpp:    sextet[2] = (bit24 / (          64)) % 64;
+quickcg.cpp:    sextet[3] = (bit24 / (           1)) % 64;
+quickcg.cpp:    
+quickcg.cpp:    for(size_t i = 0; i < 4; i++)
+quickcg.cpp:    {
+quickcg.cpp:      if(pos + i - 1 < in.size()) out.push_back(characters[sextet[i]]);
+quickcg.cpp:      else out.push_back('=');
+quickcg.cpp:    }
+quickcg.cpp:    
+quickcg.cpp:    if(pos % 57 == 0 && pos != 0) out.push_back(10); //newline char every 76 chars (57 = 3/4th of 76)
+quickcg.cpp:  }
+quickcg.cpp:  
+quickcg.cpp:void decodeBase64(std::vector<unsigned char>& out, const std::string& in)
+quickcg.cpp:  unsigned long bit24 = 0;
+quickcg.cpp:  unsigned long sextet[4] = {0, 0, 0, 0};
+quickcg.cpp:  unsigned long octet[3] = {0, 0, 0};
+quickcg.cpp:  
+quickcg.cpp:  out.clear();
+quickcg.cpp:  out.reserve((3 * in.size()) / 4);
+quickcg.cpp:  
+quickcg.cpp:  for(size_t pos = 0; pos < in.size() - 3; pos += 4)
+quickcg.cpp:  {
+quickcg.cpp:    for(size_t i = 0; i < 4; i++)
+quickcg.cpp:    {
+quickcg.cpp:      unsigned long c = in[pos + i];
+quickcg.cpp:      if(c >= 65 && c <= 90) sextet[i] = c - 65;
+quickcg.cpp:      else if(c >= 97 && c <= 122) sextet[i] = c - 71;
+quickcg.cpp:      else if(c >= 48 && c <= 57) sextet[i] = c + 4;
+quickcg.cpp:      else if(c == '+') sextet[i] = 62;
+quickcg.cpp:      else if(c == '/') sextet[i] = 63;
+quickcg.cpp:      else if(c == '=') sextet[i] = 0; //value doesn't matter
+quickcg.cpp:      else //unknown char, can be whitespace, newline, ...
+quickcg.cpp:      {
+quickcg.cpp:        pos++;
+quickcg.cpp:        if(pos > in.size() - 3) return;
+quickcg.cpp:        i--;
+quickcg.cpp:      }
+quickcg.cpp:    }
+quickcg.cpp:    
+quickcg.cpp:    bit24  = 64 * 64 * 64 * sextet[0];
+quickcg.cpp:    bit24 +=      64 * 64 * sextet[1];
+quickcg.cpp:    bit24 +=           64 * sextet[2];
+quickcg.cpp:    bit24 +=                sextet[3];
+quickcg.cpp:    
+quickcg.cpp:    octet[0] = (bit24 / (256 * 256)) % 256;
+quickcg.cpp:    octet[1] = (bit24 / (      256)) % 256;
+quickcg.cpp:    octet[2] = (bit24 / (        1)) % 256;
+quickcg.cpp:    
+quickcg.cpp:    for(size_t i = 0; i < 3; i++)
+quickcg.cpp:    {
+quickcg.cpp:      if(in[pos + 1 + i] != '=') out.push_back(octet[i]);
+quickcg.cpp:    }
+quickcg.cpp:  }
+quickcg.cpp:// PNG                                                                        //
+quickcg.cpp:int decodePNG(std::vector<unsigned char>& out_image_32bit, unsigned long& image_width, unsigned long& image_height, const unsigned char* in_png, unsigned long in_size)
+quickcg.cpp:  // picoPNG version 20071020
+quickcg.cpp:  // Copyright (c) 2005-2007 Lode Vandevenne
+quickcg.cpp:  //
+quickcg.cpp:  // This software is provided 'as-is', without any express or implied
+quickcg.cpp:  // warranty. In no event will the authors be held liable for any damages
+quickcg.cpp:  // arising from the use of this software.
+quickcg.cpp:  //
+quickcg.cpp:  // Permission is granted to anyone to use this software for any purpose,
+quickcg.cpp:  // including commercial applications, and to alter it and redistribute it
+quickcg.cpp:  // freely, subject to the following restrictions:
+quickcg.cpp:  //
+quickcg.cpp:  //     1. The origin of this software must not be misrepresented; you must not
+quickcg.cpp:  //     claim that you wrote the original software. If you use this software
+quickcg.cpp:  //     in a product, an acknowledgment in the product documentation would be
+quickcg.cpp:  //     appreciated but is not required.
+quickcg.cpp:  //     2. Altered source versions must be plainly marked as such, and must not be
+quickcg.cpp:  //     misrepresented as being the original software.
+quickcg.cpp:  //     3. This notice may not be removed or altered from any source distribution.
+quickcg.cpp:  
+quickcg.cpp:  // picoPNG is a PNG decoder in one C++ function. Use picoPNG for programs that need
+quickcg.cpp:  // only 1 .cpp file. Apologies for the compact code style, it's to make it tiny.
+quickcg.cpp:  
+quickcg.cpp:  static const unsigned long lengthbase[29] =  {3,4,5,6,7,8,9,10,11,13,15,17,19,23,27,31,35,43,51,59,67,83,99,115,131,163,195,227,258};
+quickcg.cpp:  static const unsigned long lengthextra[29] = {0,0,0,0,0,0,0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4,  4,  5,  5,  5,  5,  0};
+quickcg.cpp:  static const unsigned long distancebase[30] =  {1,2,3,4,5,7,9,13,17,25,33,49,65,97,129,193,257,385,513,769,1025,1537,2049,3073,4097,6145,8193,12289,16385,24577};
+quickcg.cpp:  static const unsigned long distanceextra[30] = {0,0,0,0,1,1,2, 2, 3, 3, 4, 4, 5, 5,  6,  6,  7,  7,  8,  8,   9,   9,  10,  10,  11,  11,  12,   12,   13,   13};
+quickcg.cpp:  static const unsigned long clcl[19] = {16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15}; //code length code lengths
+quickcg.cpp:  struct Zlib //nested functions for zlib decompression
+quickcg.cpp:  {
+quickcg.cpp:    static unsigned long readBitFromStream(size_t& bitp, const unsigned char* bits) { unsigned long result = (bits[bitp >> 3] >> (bitp & 0x7)) & 1; bitp++; return result;}
+quickcg.cpp:    static unsigned long readBitsFromStream(size_t& bitp, const unsigned char* bits, size_t nbits)
+quickcg.cpp:    {
+quickcg.cpp:      unsigned long result = 0;
+quickcg.cpp:      for(size_t i = 0; i < nbits; i++) result += (readBitFromStream(bitp, bits)) << i;
+quickcg.cpp:      return result;
+quickcg.cpp:    }
+quickcg.cpp:    struct HuffmanTree
+quickcg.cpp:    {
+quickcg.cpp:      int makeFromLengths(const std::vector<unsigned long>& bitlen, unsigned long maxbitlen)
+quickcg.cpp:      { //make tree given the lengths
+quickcg.cpp:        unsigned long numcodes = (unsigned long)(bitlen.size()), treepos = 0, nodefilled = 0;
+quickcg.cpp:        std::vector<unsigned long> tree1d(numcodes), blcount(maxbitlen + 1, 0), nextcode(maxbitlen + 1, 0);
+quickcg.cpp:        for(unsigned long bits = 0; bits < numcodes; bits++) blcount[bitlen[bits]]++; //count number of instances of each code length
+quickcg.cpp:        for(unsigned long bits = 1; bits <= maxbitlen; bits++) nextcode[bits] = (nextcode[bits - 1] + blcount[bits - 1]) << 1;
+quickcg.cpp:        for(unsigned long n = 0; n < numcodes; n++) if(bitlen[n] != 0) tree1d[n] = nextcode[bitlen[n]]++; //generate all the codes
+quickcg.cpp:        tree2d.clear(); tree2d.resize(numcodes * 2, 32767); //32767 here means the tree2d isn't filled there yet
+quickcg.cpp:        for(unsigned long n = 0; n < numcodes; n++) //the codes
+quickcg.cpp:        for(unsigned long i = 0; i < bitlen[n]; i++) //the bits for this code
+quickcg.cpp:        {
+quickcg.cpp:          unsigned long bit = (tree1d[n] >> (bitlen[n] - i - 1)) & 1;
+quickcg.cpp:          if(treepos > numcodes - 2) return 55;
+quickcg.cpp:          if(tree2d[2 * treepos + bit] == 32767) //not yet filled in
+quickcg.cpp:          {
+quickcg.cpp:            if(i + 1 == bitlen[n]) { tree2d[2 * treepos + bit] = n; treepos = 0; } //last bit
+quickcg.cpp:            else { tree2d[2 * treepos + bit] = ++nodefilled + numcodes; treepos = nodefilled; } //addresses are encoded as values > numcodes
+quickcg.cpp:          }
+quickcg.cpp:          else treepos = tree2d[2 * treepos + bit] - numcodes; //subtract numcodes from address to get address value
+quickcg.cpp:        }
+quickcg.cpp:        return 0;
+quickcg.cpp:      }
+quickcg.cpp:      int decode(bool& decoded, unsigned long& result, size_t& treepos, unsigned long bit) const
+quickcg.cpp:      { //Decodes a symbol from the tree
+quickcg.cpp:        unsigned long numcodes = (unsigned long)tree2d.size() / 2;
+quickcg.cpp:        if(treepos >= numcodes) return 11; //error: you appeared outside the codetree
+quickcg.cpp:        result = tree2d[2 * treepos + bit];
+quickcg.cpp:        decoded = (result < numcodes);
+quickcg.cpp:        treepos = decoded ? 0 : result - numcodes;
+quickcg.cpp:        return 0;
+quickcg.cpp:      }
+quickcg.cpp:      std::vector<unsigned long> tree2d; //2D representation of a huffman tree: The one dimension is "0" or "1", the other contains all nodes and leaves of the tree.
+quickcg.cpp:    };
+quickcg.cpp:    struct Inflator
+quickcg.cpp:    {
+quickcg.cpp:      int error;
+quickcg.cpp:      void inflate(std::vector<unsigned char>& out, const std::vector<unsigned char>& in, size_t inpos = 0)
+quickcg.cpp:      {
+quickcg.cpp:        size_t bp = 0, pos = 0; //bit pointer and byte pointer
+quickcg.cpp:        error = 0;
+quickcg.cpp:        unsigned long BFINAL = 0;
+quickcg.cpp:        while(!BFINAL && !error)
+quickcg.cpp:        {
+quickcg.cpp:          if(bp >> 3 >= in.size()) { error = 52; return; } //error, bit pointer will jump past memory
+quickcg.cpp:          BFINAL = readBitFromStream(bp, &in[inpos]);
+quickcg.cpp:          unsigned long BTYPE = readBitFromStream(bp, &in[inpos]); BTYPE += 2 * readBitFromStream(bp, &in[inpos]);
+quickcg.cpp:          if(BTYPE == 3) { error = 20; return; } //error: invalid BTYPE
+quickcg.cpp:          else if(BTYPE == 0) inflateNoCompression(out, &in[inpos], bp, pos, in.size());
+quickcg.cpp:          else inflateHuffmanBlock(out, &in[inpos], bp, pos, in.size(), BTYPE);
+quickcg.cpp:        }
+quickcg.cpp:        if(!error) out.resize(pos); //Only now we know the true size of out, resize it to that
+quickcg.cpp:      }
+quickcg.cpp:      void generateFixedTrees(HuffmanTree& tree, HuffmanTree& treeD) //get the tree of a deflated block with fixed tree
+quickcg.cpp:      {
+quickcg.cpp:        std::vector<unsigned long> bitlen(288, 8), bitlenD(32, 5);;
+quickcg.cpp:        for(size_t i = 144; i <= 255; i++) bitlen[i] = 9;
+quickcg.cpp:        for(size_t i = 256; i <= 279; i++) bitlen[i] = 7;
+quickcg.cpp:        tree.makeFromLengths(bitlen, 15);
+quickcg.cpp:        treeD.makeFromLengths(bitlenD, 15);
+quickcg.cpp:      }
+quickcg.cpp:      HuffmanTree codetree, codetreeD, codelengthcodetree; //the code tree for Huffman codes, distance codes, and code length codes
+quickcg.cpp:      unsigned long huffmanDecodeSymbol(const unsigned char* in, size_t& bp, const HuffmanTree& codetree, size_t inlength)
+quickcg.cpp:      { //decode a single symbol from given list of bits with given code tree. return value is the symbol
+quickcg.cpp:        bool decoded; unsigned long ct;
+quickcg.cpp:        for(size_t treepos = 0;;)
+quickcg.cpp:        {
+quickcg.cpp:          if((bp & 0x07) == 0 && (bp >> 3) > inlength) { error = 10; return 0; } //error: end reached without endcode
+quickcg.cpp:          error = codetree.decode(decoded, ct, treepos, readBitFromStream(bp, in)); if(error) return 0; //stop, an error happened
+quickcg.cpp:          if(decoded) return ct;
+quickcg.cpp:      } }
+quickcg.cpp:      void getTreeInflateDynamic(HuffmanTree& tree, HuffmanTree& treeD, const unsigned char* in, size_t& bp, size_t inlength)
+quickcg.cpp:      { //get the tree of a deflated block with dynamic tree, the tree itself is also Huffman compressed with a known tree
+quickcg.cpp:        std::vector<unsigned long> bitlen(288, 0), bitlenD(32, 0);
+quickcg.cpp:        if(bp >> 3 >= inlength - 2) { error = 49; return; } //the bit pointer is or will go past the memory
+quickcg.cpp:        size_t HLIT =  readBitsFromStream(bp, in, 5) + 257; //number of literal/length codes + 257
+quickcg.cpp:        size_t HDIST = readBitsFromStream(bp, in, 5) + 1; //number of distance codes + 1
+quickcg.cpp:        size_t HCLEN = readBitsFromStream(bp, in, 4) + 4; //number of code length codes + 4
+quickcg.cpp:        std::vector<unsigned long> codelengthcode(19); //lengths of tree to decode the lengths of the dynamic tree
+quickcg.cpp:        for(size_t i = 0; i < 19; i++) codelengthcode[clcl[i]] = (i < HCLEN) ? readBitsFromStream(bp, in, 3) : 0;
+quickcg.cpp:        error = codelengthcodetree.makeFromLengths(codelengthcode, 7); if(error) return;
+quickcg.cpp:        size_t i = 0, replength;
+quickcg.cpp:        while(i < HLIT + HDIST)
+quickcg.cpp:        {
+quickcg.cpp:          unsigned long code = huffmanDecodeSymbol(in, bp, codelengthcodetree, inlength); if(error) return;
+quickcg.cpp:          if(code <= 15)  { if(i < HLIT) bitlen[i++] = code; else bitlenD[i++ - HLIT] = code; } //a length code
+quickcg.cpp:          else if(code == 16) //repeat previous
+quickcg.cpp:          {
+quickcg.cpp:            if(bp >> 3 >= inlength) { error = 50; return; } //error, bit pointer jumps past memory
+quickcg.cpp:            replength = 3 + readBitsFromStream(bp, in, 2);
+quickcg.cpp:            unsigned long value; //set value to the previous code
+quickcg.cpp:            if((i - 1) < HLIT) value = bitlen[i - 1];
+quickcg.cpp:            else value = bitlenD[i - HLIT - 1];
+quickcg.cpp:            for(size_t n = 0; n < replength; n++) //repeat this value in the next lengths
+quickcg.cpp:            {
+quickcg.cpp:              if(i >= HLIT + HDIST) { error = 13; return; } //error: i is larger than the amount of codes
+quickcg.cpp:              if(i < HLIT) bitlen[i++] = value; else bitlenD[i++ - HLIT] = value;
+quickcg.cpp:            }
+quickcg.cpp:          }
+quickcg.cpp:          else if(code == 17) //repeat "0" 3-10 times
+quickcg.cpp:          {
+quickcg.cpp:            if(bp >> 3 >= inlength) { error = 50; return; } //error, bit pointer jumps past memory
+quickcg.cpp:            replength = 3 + readBitsFromStream(bp, in, 3);
+quickcg.cpp:            for(size_t n = 0; n < replength; n++) //repeat this value in the next lengths
+quickcg.cpp:            {
+quickcg.cpp:              if(i >= HLIT + HDIST) { error = 14; return; } //error: i is larger than the amount of codes
+quickcg.cpp:              if(i < HLIT) bitlen[i++] = 0; else bitlenD[i++ - HLIT] = 0;
+quickcg.cpp:          } }
+quickcg.cpp:          else if(code == 18) //repeat "0" 11-138 times
+quickcg.cpp:          {
+quickcg.cpp:            if(bp >> 3 >= inlength) { error = 50; return; } //error, bit pointer jumps past memory
+quickcg.cpp:            replength = 11 + readBitsFromStream(bp, in, 7);
+quickcg.cpp:            for(size_t n = 0; n < replength; n++) //repeat this value in the next lengths
+quickcg.cpp:            {
+quickcg.cpp:              if(i >= HLIT + HDIST) { error = 15; return; } //error: i is larger than the amount of codes
+quickcg.cpp:              if(i < HLIT) bitlen[i++] = 0; else bitlenD[i++ - HLIT] = 0;
+quickcg.cpp:          } }
+quickcg.cpp:          else { error = 16; return; } //error: somehow an unexisting code appeared. This can never happen.
+quickcg.cpp:        }
+quickcg.cpp:        if(bitlen[256] == 0) { error = 64; return; } //the length of the end code 256 must be larger than 0
+quickcg.cpp:        error = tree.makeFromLengths(bitlen, 15); if(error) return; //now we've finally got HLIT and HDIST, so generate the code trees, and the function is done
+quickcg.cpp:        error = treeD.makeFromLengths(bitlenD, 15); if(error) return;
+quickcg.cpp:      }
+quickcg.cpp:      void inflateHuffmanBlock(std::vector<unsigned char>& out, const unsigned char* in, size_t& bp, size_t& pos, size_t inlength, unsigned long btype) 
+quickcg.cpp:      {
+quickcg.cpp:        if(btype == 1) { generateFixedTrees(codetree, codetreeD); }
+quickcg.cpp:        else if(btype == 2) { getTreeInflateDynamic(codetree, codetreeD, in, bp, inlength); if(error) return; }
+quickcg.cpp:        for(;;)
+quickcg.cpp:        {
+quickcg.cpp:          unsigned long code = huffmanDecodeSymbol(in, bp, codetree, inlength); if(error) return;
+quickcg.cpp:          if(code == 256) return; //end code
+quickcg.cpp:          else if(code <= 255) //literal symbol
+quickcg.cpp:          {
+quickcg.cpp:            if(pos >= out.size()) out.resize((pos + 1) * 2); //reserve more room
+quickcg.cpp:            out[pos++] = (unsigned char)(code);
+quickcg.cpp:          }
+quickcg.cpp:          else if(code >= 257 && code <= 285) //length code
+quickcg.cpp:          {
+quickcg.cpp:            size_t length = lengthbase[code - 257], numextrabits = lengthextra[code - 257];
+quickcg.cpp:            if((bp >> 3) >= inlength) { error = 51; return; } //error, bit pointer will jump past memory
+quickcg.cpp:            length += readBitsFromStream(bp, in, numextrabits);
+quickcg.cpp:            unsigned long codeD = huffmanDecodeSymbol(in, bp, codetreeD, inlength); if(error) return;
+quickcg.cpp:            if(codeD > 29) { error = 18; return; } //error: invalid distance code (30-31 are never used)
+quickcg.cpp:            unsigned long distance = distancebase[codeD], numextrabitsD = distanceextra[codeD];
+quickcg.cpp:            if((bp >> 3) >= inlength) { error = 51; return; } //error, bit pointer will jump past memory
+quickcg.cpp:            distance += readBitsFromStream(bp, in, numextrabitsD);
+quickcg.cpp:            size_t start = pos, backward = start - distance;
+quickcg.cpp:            if(pos + length >= out.size()) out.resize((pos + length) * 2); //reserve more room
+quickcg.cpp:            for(size_t forward = 0; forward < length; forward++)
+quickcg.cpp:            {
+quickcg.cpp:              out[pos++] = out[backward++];
+quickcg.cpp:              if(backward >= start) backward = start - distance;
+quickcg.cpp:      } } } }
+quickcg.cpp:      void inflateNoCompression(std::vector<unsigned char>& out, const unsigned char* in, size_t& bp, size_t& pos, size_t inlength)
+quickcg.cpp:      {
+quickcg.cpp:        while((bp & 0x7) != 0) bp++; //go to first boundary of byte
+quickcg.cpp:        size_t p = bp / 8;
+quickcg.cpp:        if(p >= inlength - 4) { error = 52; return; } //error, bit pointer will jump past memory
+quickcg.cpp:        unsigned long LEN = in[p] + 256 * in[p + 1], NLEN = in[p + 2] + 256 * in[p + 3]; p += 4;
+quickcg.cpp:        if(LEN + NLEN != 65535) { error = 21; return; } //error: NLEN is not one's complement of LEN
+quickcg.cpp:        if(pos + LEN >= out.size()) out.resize(pos + LEN);
+quickcg.cpp:        if(p + LEN > inlength) { error = 23; return; } //error: reading outside of in buffer
+quickcg.cpp:        for(unsigned long n = 0; n < LEN; n++) out[pos++] = in[p++]; //read LEN bytes of literal data
+quickcg.cpp:        bp = p * 8;
+quickcg.cpp:      }
+quickcg.cpp:    };
+quickcg.cpp:    int decompress(std::vector<unsigned char>& out, const std::vector<unsigned char>& in) //returns error value
+quickcg.cpp:    {
+quickcg.cpp:      Inflator inflator;
+quickcg.cpp:      if(in.size() < 2) { return 53; } //error, size of zlib data too small
+quickcg.cpp:      if((in[0] * 256 + in[1]) % 31 != 0) { return 24; } //error: 256 * in[0] + in[1] must be a multiple of 31, the FCHECK value is supposed to be made that way
+quickcg.cpp:      unsigned long CM = in[0] & 15, CINFO = (in[0] >> 4) & 15, FDICT = (in[1] >> 5) & 1;
+quickcg.cpp:      if(CM != 8 || CINFO > 7) { return 25; } //error: only compression method 8: inflate with sliding window of 32k is supported by the PNG spec
+quickcg.cpp:      if(FDICT != 0) { return 26; } //error: the specification of PNG says about the zlib stream: "The additional flags shall not specify a preset dictionary."
+quickcg.cpp:      inflator.inflate(out, in, 2);
+quickcg.cpp:      return inflator.error; //note: adler32 checksum was skipped and ignored
+quickcg.cpp:    }
+quickcg.cpp:  };
+quickcg.cpp:  struct PNG //nested functions for PNG decoding
+quickcg.cpp:  {
+quickcg.cpp:    struct Info
+quickcg.cpp:    {
+quickcg.cpp:      unsigned long width, height, colorType, bitDepth, compressionMethod, filterMethod, interlaceMethod, key_r, key_g, key_b;
+quickcg.cpp:      bool key_defined; //is a transparent color key given?
+quickcg.cpp:      std::vector<unsigned char> palette;
+quickcg.cpp:    } info;
+quickcg.cpp:    int error;
+quickcg.cpp:    void decode(std::vector<unsigned char>& out, const unsigned char* in, unsigned long size)
+quickcg.cpp:    {
+quickcg.cpp:      error = 0;
+quickcg.cpp:      if(size == 0 || in == 0) { error = 48; return; } //the given data is empty
+quickcg.cpp:      readPngHeader(&in[0], size); if(error) return;
+quickcg.cpp:      size_t pos = 33; //first byte of the first chunk after the header
+quickcg.cpp:      std::vector<unsigned char> idat; //the data from idat chunks
+quickcg.cpp:      bool IEND = false, known_type = true;
+quickcg.cpp:      info.key_defined = false;
+quickcg.cpp:      while(!IEND) //loop through the chunks, ignoring unknown chunks and stopping at IEND chunk. IDAT data is put at the start of the in buffer
+quickcg.cpp:      {
+quickcg.cpp:        if(pos + 8 >= size) { error = 30; return; } //error: size of the in buffer too small to contain next chunk
+quickcg.cpp:        size_t chunkLength = read32bitInt(&in[pos]); pos += 4;
+quickcg.cpp:        if(chunkLength > 2147483647) { error = 63; return; }
+quickcg.cpp:        if(pos + chunkLength >= size) { error = 35; return; } //error: size of the in buffer too small to contain next chunk
+quickcg.cpp:        if(in[pos + 0] == 'I' && in[pos + 1] == 'D' && in[pos + 2] == 'A' && in[pos + 3] == 'T') //IDAT chunk, containing compressed image data
+quickcg.cpp:        {
+quickcg.cpp:          idat.insert(idat.end(), &in[pos + 4], &in[pos + 4 + chunkLength]);
+quickcg.cpp:          pos += (4 + chunkLength);
+quickcg.cpp:        }
+quickcg.cpp:        else if(in[pos + 0] == 'I' && in[pos + 1] == 'E' && in[pos + 2] == 'N' && in[pos + 3] == 'D')  { pos += 4; IEND = true; }
+quickcg.cpp:        else if(in[pos + 0] == 'P' && in[pos + 1] == 'L' && in[pos + 2] == 'T' && in[pos + 3] == 'E') //palette chunk (PLTE)
+quickcg.cpp:        {
+quickcg.cpp:          pos += 4; //go after the 4 letters
+quickcg.cpp:          info.palette.resize(4 * (chunkLength / 3));
+quickcg.cpp:          if(info.palette.size() > (4 * 256)) { error = 38; return; } //error: palette too big
+quickcg.cpp:          for(size_t i = 0; i < info.palette.size(); i += 4)
+quickcg.cpp:          {
+quickcg.cpp:            for(size_t j = 0; j < 3; j++) info.palette[i + j] = in[pos++]; //RGB
+quickcg.cpp:            info.palette[i + 3] = 255; //alpha
+quickcg.cpp:        } }
+quickcg.cpp:        else if(in[pos + 0] == 't' && in[pos + 1] == 'R' && in[pos + 2] == 'N' && in[pos + 3] == 'S') //palette transparency chunk (tRNS)
+quickcg.cpp:        {
+quickcg.cpp:          pos += 4; //go after the 4 letters
+quickcg.cpp:          if(info.colorType == 3)
+quickcg.cpp:          {
+quickcg.cpp:            if(4 * chunkLength > info.palette.size()) { error = 39; return; } //error: more alpha values given than there are palette entries
+quickcg.cpp:            for(size_t i = 0; i < chunkLength; i++) info.palette[4 * i + 3] = in[pos++];
+quickcg.cpp:          }
+quickcg.cpp:          else if(info.colorType == 0)
+quickcg.cpp:          {
+quickcg.cpp:            if(chunkLength != 2) { error = 40; return; } //error: this chunk must be 2 bytes for greyscale image
+quickcg.cpp:            info.key_defined = 1; info.key_r = info.key_g = info.key_b = 256 * in[pos] + in[pos + 1]; pos += 2;
+quickcg.cpp:          }
+quickcg.cpp:          else if(info.colorType == 2)
+quickcg.cpp:          {
+quickcg.cpp:            if(chunkLength != 6) { error = 41; return; } //error: this chunk must be 6 bytes for RGB image
+quickcg.cpp:            info.key_defined = 1;
+quickcg.cpp:            info.key_r = 256 * in[pos] + in[pos + 1]; pos += 2;
+quickcg.cpp:            info.key_g = 256 * in[pos] + in[pos + 1]; pos += 2;
+quickcg.cpp:            info.key_b = 256 * in[pos] + in[pos + 1]; pos += 2;
+quickcg.cpp:          }
+quickcg.cpp:          else { error = 42; return; } //error: tRNS chunk not allowed for other color models
+quickcg.cpp:        }
+quickcg.cpp:        else //it's not an implemented chunk type, so ignore it: skip over the data
+quickcg.cpp:        {
+quickcg.cpp:          if(!(in[pos + 0] & 32)) { error = 69; return; } //error: unknown critical chunk (5th bit of first byte of chunk type is 0)
+quickcg.cpp:          pos += (chunkLength + 4); //skip 4 letters and uninterpreted data of unimplemented chunk
+quickcg.cpp:          known_type = false;
+quickcg.cpp:        }
+quickcg.cpp:        pos += 4; //step over CRC (which is ignored)
+quickcg.cpp:      }
+quickcg.cpp:      unsigned long bpp = getBpp(info);
+quickcg.cpp:      std::vector<unsigned char> scanlines(((info.width * (info.height * bpp + 7)) / 8) + info.height); //now the out buffer will be filled
+quickcg.cpp:      Zlib zlib; //decompress with the Zlib decompressor
+quickcg.cpp:      error = zlib.decompress(scanlines, idat); if(error) return; //stop if the zlib decompressor returned an error
+quickcg.cpp:      size_t bytewidth = (bpp + 7) / 8, outlength = (info.height * info.width * bpp + 7) / 8;
+quickcg.cpp:      out.resize(outlength); //time to fill the out buffer
+quickcg.cpp:      unsigned char* out_ = outlength ? &out[0] : 0; //use a regular pointer to the std::vector for faster code if compiled without optimization
+quickcg.cpp:      if(info.interlaceMethod == 0) //no interlace, just filter
+quickcg.cpp:      {
+quickcg.cpp:        size_t linestart = 0, linelength = (info.width * bpp + 7) / 8; //length in bytes of a scanline, excluding the filtertype byte
+quickcg.cpp:        if(bpp >= 8) //byte per byte
+quickcg.cpp:        for(unsigned long y = 0; y < info.height; y++)
+quickcg.cpp:        {
+quickcg.cpp:          unsigned long filterType = scanlines[linestart];
+quickcg.cpp:          const unsigned char* prevline = (y == 0) ? 0 : &out_[(y - 1) * info.width * bytewidth];
+quickcg.cpp:          unFilterScanline(&out_[linestart - y], &scanlines[linestart + 1], prevline, bytewidth, filterType,  linelength); if(error) return;
+quickcg.cpp:          linestart += (1 + linelength); //go to start of next scanline
+quickcg.cpp:        }
+quickcg.cpp:        else //less than 8 bits per pixel, so fill it up bit per bit
+quickcg.cpp:        {
+quickcg.cpp:          std::vector<unsigned char> templine((info.width * bpp + 7) >> 3); //only used if bpp < 8
+quickcg.cpp:          for(size_t y = 0, obp = 0; y < info.height; y++)
+quickcg.cpp:          {
+quickcg.cpp:            unsigned long filterType = scanlines[linestart];
+quickcg.cpp:            const unsigned char* prevline = (y == 0) ? 0 : &out_[(y - 1) * info.width * bytewidth];
+quickcg.cpp:            unFilterScanline(&templine[0], &scanlines[linestart + 1], prevline, bytewidth, filterType, linelength); if(error) return;
+quickcg.cpp:            for(size_t bp = 0; bp < info.width * bpp;) setBitOfReversedStream(obp, out_, readBitFromReversedStream(bp, &templine[0]));
+quickcg.cpp:            linestart += (1 + linelength); //go to start of next scanline
+quickcg.cpp:      } } }
+quickcg.cpp:      else //interlaceMethod is 1 (Adam7)
+quickcg.cpp:      {
+quickcg.cpp:        size_t passw[7] = { (info.width + 7) / 8, (info.width + 3) / 8, (info.width + 3) / 4, (info.width + 1) / 4, (info.width + 1) / 2, (info.width + 0) / 2, (info.width + 0) / 1 };
+quickcg.cpp:        size_t passh[7] = { (info.height + 7) / 8, (info.height + 7) / 8, (info.height + 3) / 8, (info.height + 3) / 4, (info.height + 1) / 4, (info.height + 1) / 2, (info.height + 0) / 2 };
+quickcg.cpp:        size_t passstart[7] = {0};
+quickcg.cpp:        size_t pattern[28] = {0, 4, 0, 2, 0, 1, 0, 0, 0, 4, 0, 2, 0, 1, 8, 8, 4, 4, 2, 2, 1, 8, 8, 8, 4, 4, 2, 2}; //values for the adam7 passes
+quickcg.cpp:        for(int i = 0; i < 6; i++) passstart[i + 1] = passstart[i] + passh[i] * ((passw[i] ? 1 : 0) + (passw[i] * bpp + 7) / 8);
+quickcg.cpp:        std::vector<unsigned char> scanlineo((info.width * bpp + 7) / 8), scanlinen((info.width * bpp + 7) / 8); //"old" and "new" scanline
+quickcg.cpp:        for(int i = 0; i < 7; i++)
+quickcg.cpp:          adam7Pass(&out_[0], &scanlinen[0], &scanlineo[0], &scanlines[passstart[i]], info.width, pattern[i], pattern[i + 7], pattern[i + 14], pattern[i + 21], passw[i], passh[i], bpp);
+quickcg.cpp:      }
+quickcg.cpp:      if(info.colorType != 6 || info.bitDepth != 8) //conversion needed
+quickcg.cpp:      {
+quickcg.cpp:        std::vector<unsigned char> data = out;
+quickcg.cpp:        error = convert(out, &data[0], info, info.width, info.height);
+quickcg.cpp:    } }
+quickcg.cpp:    void readPngHeader(const unsigned char* in, size_t inlength) //read the information from the header and store it in the Info
+quickcg.cpp:    {
+quickcg.cpp:      if(inlength < 29) { error = 27; return; } //error: the data length is smaller than the length of the header
+quickcg.cpp:      if(in[0] != 137 || in[1] != 80 || in[2] != 78 || in[3] != 71 || in[4] != 13 || in[5] != 10 || in[6] != 26 || in[7] != 10) { error = 28; return; } //no PNG signature
+quickcg.cpp:      if(in[12] != 'I' || in[13] != 'H' || in[14] != 'D' || in[15] != 'R') { error = 29; return; } //error: it doesn't start with a IHDR chunk!
+quickcg.cpp:      info.width = read32bitInt(&in[16]); info.height = read32bitInt(&in[20]);
+quickcg.cpp:      info.bitDepth = in[24]; info.colorType = in[25];
+quickcg.cpp:      info.compressionMethod = in[26]; if(in[26] != 0) { error = 32; return; } //error: only compression method 0 is allowed in the specification
+quickcg.cpp:      info.filterMethod = in[27]; if(in[27] != 0) { error = 33; return; } //error: only filter method 0 is allowed in the specification
+quickcg.cpp:      info.interlaceMethod = in[28]; if(in[28] > 1) { error = 34; return; } //error: only interlace methods 0 and 1 exist in the specification
+quickcg.cpp:      error = checkColorValidity(info.colorType, info.bitDepth);
+quickcg.cpp:    }
+quickcg.cpp:    void unFilterScanline(unsigned char* recon, const unsigned char* scanline, const unsigned char* precon, size_t bytewidth, unsigned long filterType, size_t length)
+quickcg.cpp:    {
+quickcg.cpp:      switch(filterType)
+quickcg.cpp:      {
+quickcg.cpp:        case 0: for(size_t i = 0; i < length; i++) recon[i] = scanline[i]; break;
+quickcg.cpp:        case 1:
+quickcg.cpp:          for(size_t i =         0; i < bytewidth; i++) recon[i] = scanline[i];
+quickcg.cpp:          for(size_t i = bytewidth; i <    length; i++) recon[i] = scanline[i] + recon[i - bytewidth];
+quickcg.cpp:          break;
+quickcg.cpp:        case 2: 
+quickcg.cpp:          if(precon) for(size_t i = 0; i < length; i++) recon[i] = scanline[i] + precon[i];
+quickcg.cpp:          else       for(size_t i = 0; i < length; i++) recon[i] = scanline[i];
+quickcg.cpp:          break;
+quickcg.cpp:        case 3:
+quickcg.cpp:          if(precon)
+quickcg.cpp:          {
+quickcg.cpp:            for(size_t i =         0; i < bytewidth; i++) recon[i] = scanline[i] + precon[i] / 2;
+quickcg.cpp:            for(size_t i = bytewidth; i <    length; i++) recon[i] = scanline[i] + ((recon[i - bytewidth] + precon[i]) / 2);
+quickcg.cpp:          }
+quickcg.cpp:          else
+quickcg.cpp:          {
+quickcg.cpp:            for(size_t i =         0; i < bytewidth; i++) recon[i] = scanline[i];
+quickcg.cpp:            for(size_t i = bytewidth; i <    length; i++) recon[i] = scanline[i] + recon[i - bytewidth] / 2;
+quickcg.cpp:          }
+quickcg.cpp:          break;
+quickcg.cpp:        case 4:
+quickcg.cpp:          if(precon)
+quickcg.cpp:          {
+quickcg.cpp:            for(size_t i =         0; i < bytewidth; i++) recon[i] = (unsigned char)(scanline[i] + paethPredictor(0, precon[i], 0));
+quickcg.cpp:            for(size_t i = bytewidth; i <    length; i++) recon[i] = (unsigned char)(scanline[i] + paethPredictor(recon[i - bytewidth], precon[i], precon[i - bytewidth]));
+quickcg.cpp:          }
+quickcg.cpp:          else
+quickcg.cpp:          {
+quickcg.cpp:            for(size_t i =         0; i < bytewidth; i++) recon[i] = scanline[i];
+quickcg.cpp:            for(size_t i = bytewidth; i <    length; i++) recon[i] = (unsigned char)(scanline[i] + paethPredictor(recon[i - bytewidth], 0, 0));
+quickcg.cpp:          }
+quickcg.cpp:          break;
+quickcg.cpp:        default: error = 36; return; //error: unexisting filter type given
+quickcg.cpp:    } }
+quickcg.cpp:    void adam7Pass(unsigned char* out, unsigned char* linen, unsigned char* lineo, const unsigned char* in, unsigned long w, size_t passleft, size_t passtop, size_t spacex, size_t spacey, size_t passw, size_t passh, unsigned long bpp)
+quickcg.cpp:    { //filter and reposition the pixels into the output when the image is Adam7 interlaced. This function can only do it after the full image is already decoded. The out buffer must have the correct allocated memory size already.
+quickcg.cpp:      if(passw == 0) return;
+quickcg.cpp:      size_t bytewidth = (bpp + 7) / 8, linelength = 1 + ((bpp * passw + 7) / 8);
+quickcg.cpp:      for(unsigned long y = 0; y < passh; y++)
+quickcg.cpp:      {
+quickcg.cpp:        unsigned char filterType = in[y * linelength], *prevline = (y == 0) ? 0 : lineo;
+quickcg.cpp:        unFilterScanline(linen, &in[y * linelength + 1], prevline, bytewidth, filterType, (w * bpp + 7) / 8); if(error) return;
+quickcg.cpp:        if(bpp >= 8) for(size_t i = 0; i < passw; i++) for(size_t b = 0; b < bytewidth; b++) //b = current byte of this pixel
+quickcg.cpp:          out[bytewidth * w * (passtop + spacey * y) + bytewidth * (passleft + spacex * i) + b] = linen[bytewidth * i + b];
+quickcg.cpp:        else for(size_t i = 0; i < passw; i++)
+quickcg.cpp:        {
+quickcg.cpp:          size_t obp = bpp * w * (passtop + spacey * y) + bpp * (passleft + spacex * i), bp = i * bpp;
+quickcg.cpp:          for(size_t b = 0; b < bpp; b++) setBitOfReversedStream(obp, out, readBitFromReversedStream(bp, &linen[0]));
+quickcg.cpp:        }
+quickcg.cpp:        unsigned char* temp = linen; linen = lineo; lineo = temp; //swap the two buffer pointers "line old" and "line new"
+quickcg.cpp:    } }
+quickcg.cpp:    static unsigned long readBitFromReversedStream(size_t& bitp, const unsigned char* bits) { unsigned long result = (bits[bitp >> 3] >> (7 - bitp & 0x7)) & 1; bitp++; return result;}
+quickcg.cpp:    static unsigned long readBitsFromReversedStream(size_t& bitp, const unsigned char* bits, unsigned long nbits)
+quickcg.cpp:    {
+quickcg.cpp:      unsigned long result = 0;
+quickcg.cpp:      for(size_t i = nbits - 1; i < nbits; i--) result += ((readBitFromReversedStream(bitp, bits)) << i);
+quickcg.cpp:      return result;
+quickcg.cpp:    }
+quickcg.cpp:    void setBitOfReversedStream(size_t& bitp, unsigned char* bits, unsigned long bit) { bits[bitp >> 3] |=  (bit << (7 - bitp & 0x7)); bitp++; }
+quickcg.cpp:    unsigned long read32bitInt(const unsigned char* buffer) { return (buffer[0] << 24) | (buffer[1] << 16) | (buffer[2] << 8) | buffer[3]; }
+quickcg.cpp:    int checkColorValidity(unsigned long colorType, unsigned long bd) //return type is a LodePNG error code
+quickcg.cpp:    {
+quickcg.cpp:      if((colorType == 2 || colorType == 4 || colorType == 6)) if(!(bd == 8 || bd == 16)) return 37;
+quickcg.cpp:      else if(colorType == 0) if(!(bd == 1 || bd == 2 || bd == 4 || bd == 8 || bd == 16)) return 37;
+quickcg.cpp:      else if(colorType == 3) if(!(bd == 1 || bd == 2 || bd == 4 || bd == 8            )) return 37;
+quickcg.cpp:      else return 31; //unexisting color type
+quickcg.cpp:      return 0; //allowed color type / bits combination
+quickcg.cpp:    }
+quickcg.cpp:    unsigned long getBpp(const Info& info)
+quickcg.cpp:    {
+quickcg.cpp:      if(info.colorType == 2) return (3 * info.bitDepth);
+quickcg.cpp:      else if(info.colorType >= 4) return (info.colorType - 2) * info.bitDepth;
+quickcg.cpp:      else return info.bitDepth;
+quickcg.cpp:    }
+quickcg.cpp:    int convert(std::vector<unsigned char>& out, const unsigned char* in, Info& infoIn, unsigned long w, unsigned long h)
+quickcg.cpp:    { //converts from any color type to 32-bit. return value = LodePNG error code
+quickcg.cpp:      size_t numpixels = w * h, bp = 0;
+quickcg.cpp:      out.resize(numpixels * 4);
+quickcg.cpp:      unsigned char* out_ = out.empty() ? 0 : &out[0]; //faster if compiled without optimization
+quickcg.cpp:      if(infoIn.bitDepth == 8 && infoIn.colorType == 0) //greyscale
+quickcg.cpp:      for(size_t i = 0; i < numpixels; i++)
+quickcg.cpp:      {
+quickcg.cpp:        out_[4 * i + 0] = out_[4 * i + 1] = out_[4 * i + 2] = in[i];
+quickcg.cpp:        out_[4 * i + 3] = (infoIn.key_defined && in[i] == infoIn.key_r) ? 0 : 255;
+quickcg.cpp:      }
+quickcg.cpp:      else if(infoIn.bitDepth == 8 && infoIn.colorType == 2) //RGB color
+quickcg.cpp:      for(size_t i = 0; i < numpixels; i++)
+quickcg.cpp:      {
+quickcg.cpp:        for(size_t c = 0; c < 3; c++) out_[4 * i + c] = in[3 * i + c];
+quickcg.cpp:        out_[4 * i + 3] = (infoIn.key_defined == 1 && in[3 * i + 0] == infoIn.key_r && in[3 * i + 1] == infoIn.key_g && in[3 * i + 2] == infoIn.key_b) ? 0 : 255;
+quickcg.cpp:      }
+quickcg.cpp:      else if(infoIn.bitDepth == 8 && infoIn.colorType == 3) //indexed color (palette)
+quickcg.cpp:      for(size_t i = 0; i < numpixels; i++)
+quickcg.cpp:      {
+quickcg.cpp:        if(4U * in[i] >= infoIn.palette.size()) return 46;
+quickcg.cpp:        for(size_t c = 0; c < 4; c++) out_[4 * i + c] = infoIn.palette[4 * in[i] + c]; //get rgb colors from the palette
+quickcg.cpp:      }
+quickcg.cpp:      else if(infoIn.bitDepth == 8 && infoIn.colorType == 4) //greyscale with alpha
+quickcg.cpp:      for(size_t i = 0; i < numpixels; i++)
+quickcg.cpp:      {
+quickcg.cpp:        out_[4 * i + 0] = out_[4 * i + 1] = out_[4 * i + 2] = in[2 * i + 0];
+quickcg.cpp:        out_[4 * i + 3] = in[2 * i + 1];
+quickcg.cpp:      }
+quickcg.cpp:      else if(infoIn.bitDepth == 8 && infoIn.colorType == 6) for(size_t i = 0; i < numpixels; i++) for(size_t c = 0; c < 4; c++) out_[4 * i + c] = in[4 * i + c]; //RGB with alpha
+quickcg.cpp:      else if(infoIn.bitDepth == 16 && infoIn.colorType == 0) //greyscale
+quickcg.cpp:      for(size_t i = 0; i < numpixels; i++)
+quickcg.cpp:      {
+quickcg.cpp:        out_[4 * i + 0] = out_[4 * i + 1] = out_[4 * i + 2] = in[2 * i];
+quickcg.cpp:        out_[4 * i + 3] = (infoIn.key_defined && 256U * in[i] + in[i + 1] == infoIn.key_r) ? 0 : 255;
+quickcg.cpp:      }
+quickcg.cpp:      else if(infoIn.bitDepth == 16 && infoIn.colorType == 2) //RGB color
+quickcg.cpp:      for(size_t i = 0; i < numpixels; i++)
+quickcg.cpp:      {
+quickcg.cpp:        for(size_t c = 0; c < 3; c++) out_[4 * i + c] = in[6 * i + 2 * c];
+quickcg.cpp:        out_[4 * i + 3] = (infoIn.key_defined && 256U*in[6*i+0]+in[6*i+1] == infoIn.key_r && 256U*in[6*i+2]+in[6*i+3] == infoIn.key_g && 256U*in[6*i+4]+in[6*i+5] == infoIn.key_b) ? 0 : 255;
+quickcg.cpp:      }
+quickcg.cpp:      else if(infoIn.bitDepth == 16 && infoIn.colorType == 4) //greyscale with alpha
+quickcg.cpp:      for(size_t i = 0; i < numpixels; i++)
+quickcg.cpp:      {
+quickcg.cpp:        out_[4 * i + 0] = out_[4 * i + 1] = out_[4 * i + 2] = in[4 * i]; //most significant byte
+quickcg.cpp:        out_[4 * i + 3] = in[4 * i + 2];
+quickcg.cpp:      }
+quickcg.cpp:      else if(infoIn.bitDepth == 16 && infoIn.colorType == 6) for(size_t i = 0; i < numpixels; i++) for(size_t c = 0; c < 4; c++) out_[4 * i + c] = in[8 * i + 2 * c]; //RGB with alpha
+quickcg.cpp:      else if(infoIn.bitDepth < 8 && infoIn.colorType == 0) //greyscale
+quickcg.cpp:      for(size_t i = 0; i < numpixels; i++)
+quickcg.cpp:      {
+quickcg.cpp:        unsigned long value = (readBitsFromReversedStream(bp, in, infoIn.bitDepth) * 255) / ((1 << infoIn.bitDepth) - 1); //scale value from 0 to 255
+quickcg.cpp:        out_[4 * i + 0] = out_[4 * i + 1] = out_[4 * i + 2] = (unsigned char)(value);
+quickcg.cpp:        out_[4 * i + 3] = (infoIn.key_defined && value && ((1U << infoIn.bitDepth) - 1U) == infoIn.key_r && ((1U << infoIn.bitDepth) - 1U)) ? 0 : 255;
+quickcg.cpp:      }
+quickcg.cpp:      else if(infoIn.bitDepth < 8 && infoIn.colorType == 3) //palette
+quickcg.cpp:      for(size_t i = 0; i < numpixels; i++)
+quickcg.cpp:      {
+quickcg.cpp:        unsigned long value = readBitsFromReversedStream(bp, in, infoIn.bitDepth);
+quickcg.cpp:        if(4 * value >= infoIn.palette.size()) return 47;
+quickcg.cpp:        for(size_t c = 0; c < 4; c++) out_[4 * i + c] = infoIn.palette[4 * value + c]; //get rgb colors from the palette
+quickcg.cpp:      }
+quickcg.cpp:      return 0;
+quickcg.cpp:    }
+quickcg.cpp:    long paethPredictor(long a, long b, long c) //Paeth predicter, used by PNG filter type 4
+quickcg.cpp:    {
+quickcg.cpp:      long p = a + b - c, pa = p > a ? p - a : a - p, pb = p > b ? p - b : b - p, pc = p > c ? p - c : c - p;
+quickcg.cpp:      return (pa <= pb && pa <= pc) ? a : pb <= pc ? b : c;
+quickcg.cpp:    }
+quickcg.cpp:  };
+quickcg.cpp:  PNG decoder; decoder.decode(out_image_32bit, in_png, in_size);
+quickcg.cpp:  image_width = decoder.info.width; image_height = decoder.info.height;
+quickcg.cpp:  return decoder.error;
+quickcg.cpp:int decodePNG(std::vector<unsigned char>& out_image_32bit, unsigned long& image_width, unsigned long& image_height, const std::vector<unsigned char>& in_png)
+quickcg.cpp:  return decodePNG(out_image_32bit, image_width, image_height, in_png.size() ? &in_png[0] : 0, in_png.size());
+quickcg.cpp:bool font[256][8][8];
+quickcg.cpp:struct GenerateFont
+quickcg.cpp:  GenerateFont()
+quickcg.cpp:  {
+quickcg.cpp:    /*
+quickcg.cpp:    The full extended ASCII character set, in the form 256 bitmap symbols of 8x8
+quickcg.cpp:    pixels in one 128x128 PNG, base64-encoded.
+quickcg.cpp:    The background color is black, not transparent.
+quickcg.cpp:    */
+quickcg.cpp:    const std::string font8x8string = "\
+quickcg.cpp:    
+quickcg.cpp:    std::vector<unsigned char> png, image;
+quickcg.cpp:    decodeBase64(png, font8x8string);
+quickcg.cpp:    unsigned long w, h;
+quickcg.cpp:    decodePNG(image, w, h, &png[0], png.size());
+quickcg.cpp:    for(size_t c = 0; c < 256; c++)
+quickcg.cpp:    for(size_t y = 0; y < 8; y++)
+quickcg.cpp:    for(size_t x = 0; x < 8; x++)
+quickcg.cpp:    {
+quickcg.cpp:      font[c][x][y] = image[4 * 128 * (8 * (c / 16) + y) + 4 * (8 * (c % 16) + x)] != 0;
+quickcg.cpp:    }
+quickcg.cpp:  }
+quickcg.cpp:GenerateFont generateFont;
+quickcg.cpp://Multithreading helper functions///////////////////////////////////////////////
+quickcg.cpp://SDL's C functions don't have destructors and such so therefore this here is needed
+quickcg.cpp://currently only needed for audio, therefor it's not in a different cpp file.
+quickcg.cpp://this creates SDL mutexes and makes sure that they're destroyed at the end. MutexFactory does the deletion!
+quickcg.cpp:struct MutexFactory
+quickcg.cpp:  SDL_mutex* createMutex()
+quickcg.cpp:  {
+quickcg.cpp:    mutexes.push_back(SDL_CreateMutex());
+quickcg.cpp:    return mutexes.back();
+quickcg.cpp:  }
+quickcg.cpp:  
+quickcg.cpp:  ~MutexFactory()
+quickcg.cpp:  {
+quickcg.cpp:    for(size_t i = 0; i < mutexes.size(); i++)
+quickcg.cpp:      SDL_DestroyMutex(mutexes[i]);
+quickcg.cpp:  }
+quickcg.cpp:  
+quickcg.cpp:  private:
+quickcg.cpp:  
+quickcg.cpp:  std::vector<SDL_mutex*> mutexes;
+quickcg.cpp:MutexFactory mutexFactory;
+quickcg.cpp://this does SDL_mutexP in the ctor and SDL_mutexV in the dtor so no matter where you leave a function, SDL_mutexV is called
+quickcg.cpp:struct Mutex
+quickcg.cpp:  SDL_mutex** m;
+quickcg.cpp:  
+quickcg.cpp:  Mutex(SDL_mutex*& mutex)
+quickcg.cpp:  {
+quickcg.cpp:    m = &mutex;
+quickcg.cpp:    SDL_mutexP(*m);
+quickcg.cpp:  }
+quickcg.cpp:  
+quickcg.cpp:  ~Mutex()
+quickcg.cpp:  {
+quickcg.cpp:    SDL_mutexV(*m);
+quickcg.cpp:  }
+quickcg.cpp://Soundcard functions///////////////////////////////////////////////////////////
+quickcg.cpp:size_t audio_min_samples = 4096; //safety buffer to avoid clicks
+quickcg.cpp:size_t audio_max_samples = 8192; //avoid too long queue
+quickcg.cpp:double audio_volume = 1.0;
+quickcg.cpp:int audio_mode = 2; //0=off, 1=full (volume ignored), 2=volume-controlled
+quickcg.cpp:void audioSetBufferSamplesRange(size_t min_samples, size_t max_samples)
+quickcg.cpp:  audio_min_samples = min_samples;
+quickcg.cpp:  audio_max_samples = max_samples;
+quickcg.cpp:void audioSetMode(int mode) //0: silent, 1: full (no volume calculations ==> faster), 2: volume-controlled (= default value)
+quickcg.cpp:  audio_mode = mode;
+quickcg.cpp:void audioSetVolume(double volume) //multiplier used if mode is 2 (volume-controlled). Default value is 1.0.
+quickcg.cpp:  audio_volume = volume;
+quickcg.cpp:Avoid the callback function and pushSamples function to be called at the same time,
+quickcg.cpp:or the std::vector can be invalid as two threads at the same time change it.
+quickcg.cpp:This SDL_mutex helps eliminate that problem.
+quickcg.cpp:SDL_mutex* audio_lock = mutexFactory.createMutex();
+quickcg.cpp:std::vector<double> audio_data(audio_min_samples, 0);
+quickcg.cpp:SDL_AudioSpec audiospec_wanted, audiospec_obtained;
+quickcg.cpp:size_t audioSamplesShortage() //returns value > 0 if the soundcard is consuming more samples than you're producing
+quickcg.cpp:  if(audio_data.size() < audio_min_samples) return audio_min_samples - audio_data.size();
+quickcg.cpp:  else return 0;
+quickcg.cpp:size_t audioSamplesOverflow() //returns value > 0 if you're producing more samples than the soundard is consuming - so take it easy a bit
+quickcg.cpp:  if(audio_data.size() > audio_max_samples) return audio_data.size() - audio_max_samples;
+quickcg.cpp:  else return 0;
+quickcg.cpp:void audioCallback(void* /*userdata*/, Uint8* stream, int len)
+quickcg.cpp:  Mutex mutex(audio_lock);
+quickcg.cpp:  
+quickcg.cpp:  int dataLengthLeft = audio_data.size();
+quickcg.cpp:  //only play if we have data left
+quickcg.cpp:  if(dataLengthLeft <= 0) return;
+quickcg.cpp:  
+quickcg.cpp:  int nsamples = len / 2; //always 16-bit, so always 2 bytes per sample, hence the amount of samples being len / 2
+quickcg.cpp:  int fill_len = (nsamples < dataLengthLeft ? nsamples : dataLengthLeft);
+quickcg.cpp:  
+quickcg.cpp:  for(int i = 0; i < nsamples; i++)
+quickcg.cpp:  {
+quickcg.cpp:    if(i < fill_len)
+quickcg.cpp:    {
+quickcg.cpp:      int s = int(audio_data[i] * 32768);
+quickcg.cpp:      if(s < -32768) s = -32768;
+quickcg.cpp:      if(s > 32767) s = 32767;
+quickcg.cpp:    
+quickcg.cpp:      stream[i * 2 + 0] = Uint8(s % 256);
+quickcg.cpp:      stream[i * 2 + 1] = Uint8(s / 256);
+quickcg.cpp:    }
+quickcg.cpp:    else stream[i * 2 + 0] = stream[i * 2 + 1] = 0;
+quickcg.cpp:  }
+quickcg.cpp:  
+quickcg.cpp:  audio_data.erase(audio_data.begin(), audio_data.begin() + fill_len);
+quickcg.cpp:int audioOpen(int samplerate, int framesize) //always 16-bit mono sound for now
+quickcg.cpp:  //set the audio format
+quickcg.cpp:  audiospec_wanted.freq = samplerate;
+quickcg.cpp:  audiospec_wanted.format = AUDIO_S16;
+quickcg.cpp:  audiospec_wanted.channels = 1;  //1 = mono, 2 = stereo
+quickcg.cpp:  audiospec_wanted.samples = framesize;
+quickcg.cpp:  audiospec_wanted.callback = audioCallback;
+quickcg.cpp:  audiospec_wanted.userdata = NULL;
+quickcg.cpp:  
+quickcg.cpp:  /*
+quickcg.cpp:  when using alsa and 44100 samples/second, then the framesize (samples)
+quickcg.cpp:  will be 940 instead of 1024. Resampled to 48000Hz, this gives back 1024.
+quickcg.cpp:  */
+quickcg.cpp:  //open the audio device, forcing the wanted format
+quickcg.cpp:  if(SDL_OpenAudio(&audiospec_wanted, &audiospec_obtained) < 0)
+quickcg.cpp:  {
+quickcg.cpp:    return 1;
+quickcg.cpp:  }
+quickcg.cpp:  
+quickcg.cpp:  SDL_PauseAudio(0);
+quickcg.cpp:  
+quickcg.cpp:  return 0;
+quickcg.cpp:void audioClose()
+quickcg.cpp:  SDL_CloseAudio();
+quickcg.cpp:int audioReOpen() //closes and opens again with same parameters
+quickcg.cpp:  SDL_PauseAudio(1);
+quickcg.cpp:  SDL_CloseAudio();
+quickcg.cpp:  if ( SDL_OpenAudio(&audiospec_wanted, &audiospec_obtained) < 0 ) 
+quickcg.cpp:  {
+quickcg.cpp:    return 1;
+quickcg.cpp:  }
+quickcg.cpp:  SDL_PauseAudio(0);
+quickcg.cpp:  
+quickcg.cpp:  return 0;
+quickcg.cpp://only works correct for 16 bit audio currently
+quickcg.cpp:void audioPushSamples(const std::vector<double>& samples, size_t pos, size_t end)
+quickcg.cpp:  if(audio_mode == 0) return;
+quickcg.cpp:  
+quickcg.cpp:  Mutex mutex(audio_lock);
+quickcg.cpp:  
+quickcg.cpp:  if(audio_mode == 1)
+quickcg.cpp:  {
+quickcg.cpp:    audio_data.insert(audio_data.end(), samples.begin() + pos, samples.begin() + end);
+quickcg.cpp:  }
+quickcg.cpp:  else if(audio_mode == 2)
+quickcg.cpp:  {
+quickcg.cpp:    size_t j = audio_data.size();
+quickcg.cpp:    audio_data.resize(j + samples.size());
+quickcg.cpp:    for(size_t i = 0; i < samples.size(); i++)
+quickcg.cpp:    {
+quickcg.cpp:      audio_data[j + i] = samples[i] * audio_volume;
+quickcg.cpp:    }
+quickcg.cpp:  }
+quickcg.cpp:void audioPlay(const std::vector<double>& samples)
+quickcg.cpp:  if(audio_mode == 0) return;
+quickcg.cpp:  
+quickcg.cpp:  Mutex mutex(audio_lock);
+quickcg.cpp:  
+quickcg.cpp:  //the *current* time is at the first sample of audio_data, the rest has been played through soundcard already
+quickcg.cpp:  
+quickcg.cpp:  if(samples.size() > audio_data.size()) audio_data.resize(samples.size(), 0.0);
+quickcg.cpp:  
+quickcg.cpp:  if(audio_mode == 1) for(size_t i = 0; i < samples.size(); i++) audio_data[i] += samples[i];
+quickcg.cpp:  else if(audio_mode == 2) for(size_t i = 0; i < samples.size(); i++) audio_data[i] += samples[i] * audio_volume;
+quickcg.h:QuickCG 20071121
+quickcg.h:Copyright (c) 2004-2007, Lode Vandevenne
+quickcg.h:All rights reserved.
+quickcg.h:Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+quickcg.h:    * Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+quickcg.h:    * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+quickcg.h:THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+quickcg.h:"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+quickcg.h:LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+quickcg.h:A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+quickcg.h:CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+quickcg.h:EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+quickcg.h:PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+quickcg.h:PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+quickcg.h:LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+quickcg.h:NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+quickcg.h:SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+quickcg.h:QuickCG is an SDL codebase that wraps some of the SDL functionality.
+quickcg.h:It's used by Lode's Computer Graphics Tutorial to work with simple function calls
+quickcg.h:to demonstrate graphical programs. It may or may not be of industrial strength
+quickcg.h:for games, though I've actually used it for some.
+quickcg.h:QuickCG can handle some things that standard C++ does not but that are useful, such as:
+quickcg.h:-drawing graphics
+quickcg.h:-a bitmap font
+quickcg.h:-simplified saving and loading of files
+quickcg.h:-reading keyboard and mouse input
+quickcg.h:-playing sound
+quickcg.h:-color models
+quickcg.h:-loading images
+quickcg.h:Contact info:
+quickcg.h:My email address is (puzzle the account and domain together with an @ symbol):
+quickcg.h:Domain: gmail dot com.
+quickcg.h:Account: lode dot vandevenne.
+quickcg.h:#ifndef _quickcg_h_included
+quickcg.h:#define _quickcg_h_included
+quickcg.h:#include <SDL/SDL.h>
+quickcg.h:#include <string>
+quickcg.h:#include <sstream>
+quickcg.h:#include <iomanip>
+quickcg.h:#include <vector>
+quickcg.h:#include <algorithm> //std::min and std::max
+quickcg.h:namespace QuickCG
+quickcg.h://useful templates//////////////////////////////////////////////////////////////
+quickcg.h://don't know why, but the standard C++ abs sometimes gives cryptic errors? if so use this :D
+quickcg.h:template<typename T>
+quickcg.h:const T template_abs(const T &a)
+quickcg.h:  return (a < 0) ? -a : a;
+quickcg.h://usage: std::string str = valtostr(25454.91654654f);
+quickcg.h:template<typename T>
+quickcg.h:std::string valtostr(const T& val)
+quickcg.h:  std::ostringstream sstream;
+quickcg.h:  sstream << val;
+quickcg.h:  return sstream.str();
+quickcg.h://usage: double val = strtoval<double>("465498.654");
+quickcg.h:template<typename T>
+quickcg.h:T strtoval(const std::string& s)
+quickcg.h:  std::istringstream sstream(s);
+quickcg.h:  T val;
+quickcg.h:  sstream >> val;
+quickcg.h:  return val;
+quickcg.h://length is decimal precision of the floating point number
+quickcg.h:template<typename T>
+quickcg.h:std::string valtostr(const T& val, int length, bool fixed = true)
+quickcg.h:  std::ostringstream sstream;
+quickcg.h:  if(fixed) sstream << std::fixed;
+quickcg.h:  sstream << std::setprecision(length) << val;
+quickcg.h:  return sstream.str();
+quickcg.h://COLOR STRUCTS/////////////////////////////////////////////////////////////////
+quickcg.h:struct ColorRGB8bit;
+quickcg.h://a color with 3 components: r, g and b
+quickcg.h:struct ColorRGB
+quickcg.h:  int r;
+quickcg.h:  int g;
+quickcg.h:  int b;
+quickcg.h:  
+quickcg.h:  ColorRGB(Uint8 r, Uint8 g, Uint8 b);
+quickcg.h:  ColorRGB(const ColorRGB8bit& color);
+quickcg.h:  ColorRGB();
+quickcg.h:  
+quickcg.h:ColorRGB operator+(const ColorRGB& color, const ColorRGB& color2);
+quickcg.h:ColorRGB operator-(const ColorRGB& color, const ColorRGB& color2);
+quickcg.h:ColorRGB operator*(const ColorRGB& color, int a);
+quickcg.h:ColorRGB operator*(int a, const ColorRGB& color);
+quickcg.h:ColorRGB operator/(const ColorRGB& color, int a);
+quickcg.h:bool operator==(const ColorRGB& color, const ColorRGB& color2);
+quickcg.h:bool operator!=(const ColorRGB& color, const ColorRGB& color2);
+quickcg.h:static const ColorRGB RGB_Black    (  0,   0,   0);
+quickcg.h:static const ColorRGB RGB_Red      (255,   0,   0);
+quickcg.h:static const ColorRGB RGB_Green    (  0, 255,   0);
+quickcg.h:static const ColorRGB RGB_Blue     (  0,   0, 255);
+quickcg.h:static const ColorRGB RGB_Cyan     (  0, 255, 255);
+quickcg.h:static const ColorRGB RGB_Magenta  (255,   0, 255);
+quickcg.h:static const ColorRGB RGB_Yellow   (255, 255,   0);
+quickcg.h:static const ColorRGB RGB_White    (255, 255, 255);
+quickcg.h:static const ColorRGB RGB_Gray     (128, 128, 128);
+quickcg.h:static const ColorRGB RGB_Grey     (192, 192, 192);
+quickcg.h:static const ColorRGB RGB_Maroon   (128,   0,   0);
+quickcg.h:static const ColorRGB RGB_Darkgreen(  0, 128,   0);
+quickcg.h:static const ColorRGB RGB_Navy     (  0,   0, 128);
+quickcg.h:static const ColorRGB RGB_Teal     (  0, 128, 128);
+quickcg.h:static const ColorRGB RGB_Purple   (128,   0, 128);
+quickcg.h:static const ColorRGB RGB_Olive    (128, 128,   0);
+quickcg.h://a color with 3 components: r, g and b
+quickcg.h:struct ColorRGB8bit
+quickcg.h:  Uint8 r;
+quickcg.h:  Uint8 g;
+quickcg.h:  Uint8 b;
+quickcg.h:  
+quickcg.h:  ColorRGB8bit(Uint8 r, Uint8 g, Uint8 b);
+quickcg.h:  ColorRGB8bit(const ColorRGB& color);
+quickcg.h:  ColorRGB8bit();
+quickcg.h:  
+quickcg.h://a color with 3 components: h, s and l
+quickcg.h:struct ColorHSL
+quickcg.h:  int h;
+quickcg.h:  int s;
+quickcg.h:  int l;
+quickcg.h:  ColorHSL(Uint8 h, Uint8 s, Uint8 l);
+quickcg.h:  ColorHSL();
+quickcg.h://a color with 3 components: h, s and v
+quickcg.h:struct ColorHSV
+quickcg.h:  int h;
+quickcg.h:  int s;
+quickcg.h:  int v;
+quickcg.h:  
+quickcg.h:  ColorHSV(Uint8 h, Uint8 s, Uint8 v);
+quickcg.h:  ColorHSV();
+quickcg.h://GLOBAL VARIABLES//////////////////////////////////////////////////////////////
+quickcg.h:extern int w;
+quickcg.h:extern int h;
+quickcg.h://KEYBOARD FUNCTIONS////////////////////////////////////////////////////////////
+quickcg.h:bool keyDown(int key); //this checks if the key is held down, returns true all the time until the key is up
+quickcg.h:bool keyPressed(int key); //this checks if the key is *just* pressed, returns true only once until the key is up again
+quickcg.h://BASIC SCREEN FUNCTIONS////////////////////////////////////////////////////////
+quickcg.h:void screen(int width = 640, int height = 400, bool fullscreen = 0, const std::string& text = " ");
+quickcg.h:void lock();
+quickcg.h:void unlock();
+quickcg.h:void redraw();
+quickcg.h:void cls(const ColorRGB& color = RGB_Black);
+quickcg.h:void pset(int x, int y, const ColorRGB& color);
+quickcg.h:ColorRGB pget(int x, int y);
+quickcg.h:void drawBuffer(Uint32 *buffer);
+quickcg.h:bool onScreen(int x, int y);
+quickcg.h://NON GRAPHICAL FUNCTIONS///////////////////////////////////////////////////////
+quickcg.h:void sleep();
+quickcg.h:void waitFrame(double oldTime, double frameDuration); //in seconds
+quickcg.h:bool done(bool quit_if_esc = true, bool delay = true);
+quickcg.h:void end();
+quickcg.h:void readKeys();
+quickcg.h:void getMouseState(int& mouseX, int& mouseY);
+quickcg.h:void getMouseState(int& mouseX, int& mouseY, bool& LMB, bool& RMB);
+quickcg.h:unsigned long getTicks(); //ticks in milliseconds
+quickcg.h:inline double getTime() { return getTicks() / 1000.0; } //time in seconds
+quickcg.h://2D SHAPES/////////////////////////////////////////////////////////////////////
+quickcg.h:bool horLine(int y, int x1, int x2, const ColorRGB& color);
+quickcg.h:bool verLine(int x, int y1, int y2, const ColorRGB& color);
+quickcg.h:bool drawLine(int x1, int y1, int x2, int y2, const ColorRGB& color);
+quickcg.h:bool drawCircle(int xc, int yc, int radius, const ColorRGB& color);
+quickcg.h:bool drawDisk(int xc, int yc, int radius, const ColorRGB& color);
+quickcg.h:bool drawRect(int x1, int y1, int x2, int y2, const ColorRGB& color);
+quickcg.h:bool clipLine(int x1,int y1,int x2, int y2, int & x3, int & y3, int & x4, int & y4);
+quickcg.h://COLOR CONVERSIONS/////////////////////////////////////////////////////////////
+quickcg.h:ColorHSL RGBtoHSL(const ColorRGB& colorRGB);
+quickcg.h:ColorRGB HSLtoRGB(const ColorHSL& colorHSL);
+quickcg.h:ColorHSV RGBtoHSV(const ColorRGB& colorRGB);
+quickcg.h:ColorRGB HSVtoRGB(const ColorHSV& colorHSV);
+quickcg.h:Uint32 RGBtoINT(const ColorRGB& colorRGB);
+quickcg.h:ColorRGB INTtoRGB(Uint32 colorINT);
+quickcg.h://FILE FUNCTIONS////////////////////////////////////////////////////////////////
+quickcg.h:void loadFile(std::vector<unsigned char>& buffer, const std::string& filename);
+quickcg.h:void saveFile(const std::vector<unsigned char>& buffer, const std::string& filename);
+quickcg.h://IMAGE FUNCTIONS///////////////////////////////////////////////////////////////
+quickcg.h:int loadImage(std::vector<ColorRGB>& out, unsigned long& w, unsigned long& h, const std::string& filename);
+quickcg.h:int loadImage(std::vector<Uint32>& out, unsigned long& w, unsigned long& h, const std::string& filename);
+quickcg.h:int decodePNG(std::vector<unsigned char>& out_image_32bit, unsigned long& image_width, unsigned long& image_height, const unsigned char* in_png, unsigned long in_size);
+quickcg.h:int decodePNG(std::vector<unsigned char>& out_image_32bit, unsigned long& image_width, unsigned long& image_height, const std::vector<unsigned char>& in_png);
+quickcg.h://TEXT FUNCTIONS////////////////////////////////////////////////////////////////
+quickcg.h:extern bool font[256][8][8];
+quickcg.h:void drawLetter(unsigned char n, int x, int y, const ColorRGB& color = RGB_White, bool bg = 0, const ColorRGB& color2 = RGB_Black);
+quickcg.h:int printString(const std::string& text, int x = 0, int y = 0, const ColorRGB& color = RGB_White, bool bg = 0, const ColorRGB& color2 = RGB_Black, int forceLength = 0);
+quickcg.h://print something (string, int, float, ...)
+quickcg.h:template<typename T>
+quickcg.h:int print(const T& val, int x = 0, int y = 0, const ColorRGB& color = RGB_White, bool bg = 0, const ColorRGB& color2 = RGB_Black, int forceLength = 0)
+quickcg.h:  std::string text = valtostr(val);
+quickcg.h:  return printString(text, x, y, color, bg, color2, forceLength);
+quickcg.h://print some floating point number, this one allows printing floating point numbers with limited length
+quickcg.h:template<typename T>
+quickcg.h:int fprint(const T& val, int length, int x = 0, int y = 0, const ColorRGB& color = RGB_White, bool bg = 0, const ColorRGB& color2 = RGB_Black, int forceLength = 0)
+quickcg.h:  std::string text = valtostr(val, length, true);
+quickcg.h:  return printString(text, x, y, color, bg, color2, forceLength);
+quickcg.h://TEXT INPUT FUNCTIONS//////////////////////////////////////////////////////////
+quickcg.h:Uint8 getInputCharacter();
+quickcg.h:void getInputString(std::string& text, const std::string& message = "", bool clear = false, int x = 0, int y = 0, const ColorRGB& color = RGB_White, bool bg = 0, const ColorRGB& color2 = RGB_Black);
+quickcg.h:template<typename T>
+quickcg.h:T getInput(const std::string& message = "", bool clear = false, int x = 0, int y = 0, const ColorRGB& color = RGB_White, bool bg = 0, const ColorRGB& color2 = RGB_Black)
+quickcg.h:  std::string text;
+quickcg.h:  getInputString(text, message, clear, x, y, color, bg, color2);
+quickcg.h:  return strtoval<T>(text);
+quickcg.h://SOUNDCARD FUNCTIONS///////////////////////////////////////////////////////////
+quickcg.h:int audioOpen(int samplerate, int framesize); //always 16-bit mono sound for now; returns 0 if no error happened
+quickcg.h:void audioClose();
+quickcg.h:int audioReOpen(); //closes and opens again with same parameters
+quickcg.h:push samples to the soundcard, making sure not to cause shortage or overflow
+quickcg.h:pos and end are the range in the samples vector that you want to push to the audio card
+quickcg.h:void audioPushSamples(const std::vector<double>& samples, size_t pos, size_t end);
+quickcg.h:size_t audioSamplesShortage(); //returns value > 0 if the soundcard is consuming more samples than you're producing
+quickcg.h:size_t audioSamplesOverflow(); //returns value > 0 if you're producing more samples than the soundard is consuming - so take it easy a bit
+quickcg.h:void audioSetBufferSamplesRange(size_t min_samples, size_t max_samples); //set shortage and overflow values. E.g. 4096 and 8192.
+quickcg.h:This plays the sound starting at this time, until it's done
+quickcg.h:The difference with audioPushSamples is:
+quickcg.h:audioPlay allows playing multiple sounds at the same time: it doesn't push at the end,
+quickcg.h:but elementwise-adds or pushes back samples if needed.
+quickcg.h:The duration depends on samplerate, make sure the samples in the vector have the correct samplerate.
+quickcg.h:void audioPlay(const std::vector<double>& samples);
+quickcg.h:void audioSetMode(int mode); //0: silent, 1: full (no volume calculations ==> faster), 2: volume-controlled (= default value)
+quickcg.h:void audioSetVolume(double volume); //multiplier used if mode is 2 (volume-controlled). Default value is 1.0.
+quickcg.h:} //end of namespace QuickCG
+ray.cpp:#include "ray.h"
+ray.cpp:ray::ray() {
+ray.cpp:ray::ray(vector3d origin_in, vector3d direction_in) {
+ray.cpp:	origin = origin_in;
+ray.cpp:	direction = direction_in;
+ray.cpp:ray::~ray() {
+ray.cpp:void ray::setOrigin(vector3d origin_in) {
+ray.cpp:	origin = origin_in;
+ray.cpp:void ray::setDirection(vector3d direction_in) {
+ray.cpp:	direction = direction_in;
+ray.cpp:vector3d& ray::getOrigin() {
+ray.cpp:	return origin;
+ray.cpp:vector3d& ray::getDirection() {
+ray.cpp:	return direction;
+ray.h:// ray
+ray.h:#ifndef _RAY_
+ray.h:#define _RAY_
+ray.h:#include "vector3d.h"
+ray.h:class ray
+ray.h:		ray(vector3d origin_in, vector3d direction_in);
+ray.h:		void setOrigin(vector3d origin_in);
+ray.h:		void setDirection(vector3d direction_in);
+ray.h:		vector3d& getOrigin();
+ray.h:		vector3d& getDirection();
+ray.h:		vector3d origin;
+ray.h:		vector3d direction;
+raytracer.bak:#include "raytracer.h"
+raytracer.bak:#include "camera.h"
+raytracer.bak:#include "scene.h"
+raytracer.bak:#include "ray.h"
+raytracer.bak:#include "primitive.h"
+raytracer.bak:#include "sphere.h"
+raytracer.bak:#include <math.h>
+raytracer.bak:#include <iostream>
+raytracer.bak:#define globalIllumination 0.1f
+raytracer.bak:#define backgroundColor color(0,0,0)
+raytracer.bak:#define n 30
+raytracer.bak:#define traceDepth 3 
+raytracer.bak:using namespace std;
+raytracer.bak:raytracer::raytracer() {
+raytracer.bak:raytracer::raytracer(scene* scene, int resX, int resY) {
+raytracer.bak:	m_scene = scene;
+raytracer.bak:	m_resX = resX;
+raytracer.bak:	m_resY = resY;
+raytracer.bak:void raytracer::renderScene() {
+raytracer.bak:color raytracer::raytrace(ray aShootRay, int aTraceDepth) {
+raytracer.bak:	bool hitObject = false;
+raytracer.bak:	color akkColor(0,0,0);
+raytracer.bak:	if (aTraceDepth > 0)
+raytracer.bak:		float tMin = 1000000;
+raytracer.bak:		//primitive* objects = m_scene->getPrimitives();
+raytracer.bak:		for (int i=0; i<m_scene->getNrOfPrimitives(); i++)
+raytracer.bak:			primitive* actObject = m_scene->getPrimitive(i);
+raytracer.bak:			float reflect = actObject->getMaterial()->getReflect();
+raytracer.bak:			float t = m_scene->getPrimitive(i)->intersect(aShootRay);
+raytracer.bak:			if ((t>0) && (t<tMin)) 
+raytracer.bak:				hitObject = true;
+raytracer.bak:				tMin = t;
+raytracer.bak:				vector3d intersecPos = aShootRay.getOrigin() + t * aShootRay.getDirection();
+raytracer.bak:				vector3d normal = actObject->getNormal(intersecPos);
+raytracer.bak:				for (int j=0; j<m_scene->getNrOfLights(); j++)
+raytracer.bak:					light* light = m_scene->getLight(j);
+raytracer.bak:					vector3d lightPos = light->getPosition();
+raytracer.bak:					vector3d light_dir = lightPos - intersecPos;
+raytracer.bak:					vector3d rayDirection = -1*aShootRay.getDirection();
+raytracer.bak:					vector3d light_dir_refl = 2*(light_dir*normal)*normal - light_dir;
+raytracer.bak:					float cosPhi = normal*light_dir;
+raytracer.bak:					float cosTheta = light_dir_refl*rayDirection;
+raytracer.bak:					//cout << "theta " << cosTheta;
+raytracer.bak:					if (cosPhi >= -1)
+raytracer.bak:						float diffuse = actObject->getMaterial()->getDiffuse()* cosPhi
+raytracer.bak:									* light->getIntensity(intersecPos);
+raytracer.bak:						akkColor += (diffuse + globalIllumination)*actObject->getMaterial()->getColor();
+raytracer.bak:						vector3d reflDir = 2*((rayDirection)*normal)*normal - rayDirection;
+raytracer.bak:						ray reflectRay(intersecPos, reflDir);
+raytracer.bak:						akkColor += reflect * raytrace(reflectRay,(aTraceDepth-1));
+raytracer.bak:					if (cosTheta >= -1)
+raytracer.bak:						float specular = actObject->getMaterial()->getSpecular()* pow(cosTheta,n)
+raytracer.bak:									* light->getIntensity(intersecPos);
+raytracer.bak:						akkColor += (specular)*actObject->getMaterial()->getColor();
+raytracer.bak:	if (!hitObject) akkColor=backgroundColor; 
+raytracer.bak:	return akkColor;
+raytracer.bak:color raytracer::getColorAtIntersecPos(primitive* hitObject, vector3d intersecPos) {
+raytracer.bak:	color actColor(0,0,0);
+raytracer.bak:	return actColor;
+raytracer.bak:primitive* raytracer::getNearestObjectInRay(ray aShootRay) {
+raytracer.bak:	primitive* hitObject = NULL;
+raytracer.bak:	float tMin = 10000;
+raytracer.bak:	for (int i=0; i<m_scene->getNrOfPrimitives(); i++)
+raytracer.bak:		primitive* actObject = m_scene->getPrimitive(i);
+raytracer.bak:		float reflect = actObject->getMaterial()->getReflect();
+raytracer.bak:		float t = m_scene->getPrimitive(i)->intersect(aShootRay);
+raytracer.bak:		if ((t>0) && (t<tMin)) 
+raytracer.bak:			hitObject = actObject;
+raytracer.bak:			tMin = t;
+raytracer.bak:	t = tMin;
+raytracer.bak:	return hitObject;
+raytracer.bak:color raytracer::renderPixel(int x, int y) {
+raytracer.bak:	ray shootRay = m_scene->getCamera().getShootRay(x,y);
+raytracer.bak:	color pixelColor = raytrace(shootRay, traceDepth);
+raytracer.bak:	return pixelColor;
+raytracer.cpp:#include <iostream>
+raytracer.cpp:#include "raytracer.h"
+raytracer.cpp:#include "camera.h"
+raytracer.cpp:#include "scene.h"
+raytracer.cpp:#include "ray.h"
+raytracer.cpp:#include "primitive.h"
+raytracer.cpp:#include "sphere.h"
+raytracer.cpp:#include <math.h>
+raytracer.cpp:#include <iostream>
+raytracer.cpp:#define n 50 
+raytracer.cpp:using namespace std;
+raytracer.cpp:// raytracer constructor
+raytracer.cpp:raytracer::raytracer() {
+raytracer.cpp:// constructs a raytracer objecti with default values
+raytracer.cpp:  ambience = 0.0f;
+raytracer.cpp:  m_resX = 600;
+raytracer.cpp:  m_resY = 600;
+raytracer.cpp:  environmentColor.setRGB(0.0f,0.0f,0.0f);
+raytracer.cpp:  ambientColor.setRGB(1.0f,1.0f,1.0f);
+raytracer.cpp:  globalRefrIndex = 1.0f;
+raytracer.cpp:  traceDepth = 1;
+raytracer.cpp:  setAntiAlias(0);
+raytracer.cpp:  
+raytracer.cpp:// raytracer constructor
+raytracer.cpp:raytracer::raytracer(scene* scene, int resX, int resY) {
+raytracer.cpp:// constructs a raytracer object with the given scene
+raytracer.cpp:// with the resolution (x,y)
+raytracer.cpp:  m_scene = scene;
+raytracer.cpp:  m_resX = resX;
+raytracer.cpp:  m_resY = resY;
+raytracer.cpp:  m_scene->getCamera()->setWidth(resX);
+raytracer.cpp:  m_scene->getCamera()->setHeight(resY);
+raytracer.cpp:  //default
+raytracer.cpp:  ambience = 0.0f;
+raytracer.cpp:  environmentColor.setRGB(0.0f,0.0f,0.0f);
+raytracer.cpp:  ambientColor.setRGB(1.0f,1.0f,1.0f);
+raytracer.cpp:  globalRefrIndex = 1.0f;
+raytracer.cpp:  traceDepth = 1;
+raytracer.cpp:  setAntiAlias(0);
+raytracer.cpp:void raytracer::renderScene() {
+raytracer.cpp:// raytrace
+raytracer.cpp:color raytracer::raytrace(ray shootRay, int actTraceDepth) {
+raytracer.cpp:// the main routine for recursive raytracing
+raytracer.cpp:  primitive* hitObject = NULL;
+raytracer.cpp:  color akkColor(0,0,0);
+raytracer.cpp:  if (actTraceDepth > 0)
+raytracer.cpp:  {
+raytracer.cpp:    //search for nearest object in shootRay
+raytracer.cpp:    hitObject = getNearestObjectInRay(shootRay);
+raytracer.cpp:    //calculate the intersection position
+raytracer.cpp:    vector3d intersecPos = shootRay.getOrigin() + t * shootRay.getDirection();
+raytracer.cpp:    if (hitObject != NULL)
+raytracer.cpp:    {
+raytracer.cpp:      for(int i=0; i<m_scene->getNrOfLights(); i++)
+raytracer.cpp:      {
+raytracer.cpp:        //begin color calculation of the intersection point
+raytracer.cpp:        //-------------------------------------------------
+raytracer.cpp:        //the actual light
+raytracer.cpp:        light* actLight = m_scene->getLight(i);
+raytracer.cpp:        
+raytracer.cpp:        //the actual normal
+raytracer.cpp:        vector3d normal = hitObject->getNormal(intersecPos);
+raytracer.cpp:        
+raytracer.cpp:        //get the direction vector from camera to intersection point 
+raytracer.cpp:        vector3d rayDirection = -1*shootRay.getDirection();
+raytracer.cpp:        rayDirection.Normalize();
+raytracer.cpp:        //calculations of the shadow ray
+raytracer.cpp:        vector3d shadowRayDirection = actLight->getPosition() - intersecPos;
+raytracer.cpp:        shadowRayDirection.Normalize();
+raytracer.cpp:        ray shadowRay(intersecPos,shadowRayDirection);
+raytracer.cpp:        primitive* shadowObject = getNearestObjectInRay(shadowRay);
+raytracer.cpp:       
+raytracer.cpp:        //shadow check
+raytracer.cpp:        if (shadowObject == NULL)
+raytracer.cpp:        { 
+raytracer.cpp:          //calculate the color at the intersection point
+raytracer.cpp:          akkColor += getColorAtIntersecPos(hitObject, intersecPos, shootRay, actLight);
+raytracer.cpp:        }  
+raytracer.cpp:        //begin reflection calculation
+raytracer.cpp:        //----------------------------
+raytracer.cpp:        //reflection material attributes
+raytracer.cpp:        float reflect = hitObject->getMaterial()->getReflect();
+raytracer.cpp:        if ((reflect > 0))
+raytracer.cpp:        {
+raytracer.cpp:          //this is the construction of the reflected ray of the 
+raytracer.cpp:          //actual shootRay for reflection calculation
+raytracer.cpp:          //----------------------------------------------------
+raytracer.cpp:          vector3d reflDir = 2*(rayDirection*normal)*normal - rayDirection;
+raytracer.cpp:          reflDir.Normalize();
+raytracer.cpp:          ray reflectRay(intersecPos, reflDir);
+raytracer.cpp:          //get into recursion for reflection calculation
+raytracer.cpp:          color reflectColor = reflect * raytrace(reflectRay, actTraceDepth-1);
+raytracer.cpp:          akkColor += reflectColor;
+raytracer.cpp:        }
+raytracer.cpp:       //end of reflection calculation
+raytracer.cpp:       //-----------------------------
+raytracer.cpp:       //begin refraction calculation
+raytracer.cpp:       //----------------------------
+raytracer.cpp:       //refraction material attributes
+raytracer.cpp:       float refract = hitObject->getMaterial()->getRefract();
+raytracer.cpp:       float refrIndex = hitObject->getMaterial()->getRefrIndex();
+raytracer.cpp:       if (refract > 0)
+raytracer.cpp:       {
+raytracer.cpp:         //this is the construction of the refracted ray
+raytracer.cpp:         //---------------------------------------------
+raytracer.cpp:         float index = globalRefrIndex/refrIndex;
+raytracer.cpp:         //are we inside the object?
+raytracer.cpp:         if ((rayDirection*normal)<0)
+raytracer.cpp:         {  
+raytracer.cpp:           normal = -1*normal;
+raytracer.cpp:           index = 1/index; 
+raytracer.cpp:         }
+raytracer.cpp:         float cosAlpha = (-1*rayDirection)*normal;
+raytracer.cpp:         float sinAlpha = sqrt(1-cosAlpha*cosAlpha);
+raytracer.cpp:         float sinBetaQuadr = index*index * (1-cosAlpha*cosAlpha); 
+raytracer.cpp:         float cosBeta = sqrt(1 - index*index * (1-cosAlpha*cosAlpha));
+raytracer.cpp:         if (sinBetaQuadr <= 1)
+raytracer.cpp:         {
+raytracer.cpp:           vector3d rayDirectionRefract = -1*index*rayDirection - (index+cosBeta) * normal;
+raytracer.cpp:           //build the ray and go into recursion
+raytracer.cpp:           rayDirectionRefract.Normalize();
+raytracer.cpp:           ray refractRay(intersecPos, rayDirectionRefract);
+raytracer.cpp:           color refractColor = refract * raytrace(refractRay, actTraceDepth-1);
+raytracer.cpp:           akkColor += refractColor;
+raytracer.cpp:         }
+raytracer.cpp:       }
+raytracer.cpp:       //end of refraction calculation
+raytracer.cpp:       //-----------------------------
+raytracer.cpp:      }
+raytracer.cpp:      // if no object was hit, return the background color
+raytracer.cpp:    } else akkColor=environmentColor;
+raytracer.cpp:  }
+raytracer.cpp:  //add the ambient component at the root of the recursion tree
+raytracer.cpp:  if ((hitObject!=NULL) & (actTraceDepth==traceDepth)) 
+raytracer.cpp:    akkColor+=ambience*ambientColor;
+raytracer.cpp:  
+raytracer.cpp://  if (actTraceDepth == traceDepth) cout << akkColor.getR() << akkColor.getG() << akkColor.getB();
+raytracer.cpp:  return akkColor;
+raytracer.cpp:color raytracer::getColorAtIntersecPos(primitive* hitObject, vector3d intersecPos, 
+raytracer.cpp:                                       ray shootRay, light* actLight) {
+raytracer.cpp://returns the actual color at the given intersection position
+raytracer.cpp://calculates the diffuse and specular components
+raytracer.cpp:  //the akkumulator for the calculated color
+raytracer.cpp:  color akkColor(0,0,0);
+raytracer.cpp:  //this is the normal of the hitObject at the intersection position
+raytracer.cpp:  vector3d normal = hitObject->getNormal(intersecPos);
+raytracer.cpp:  //actual material attributes
+raytracer.cpp:  float diffuse = hitObject->getMaterial()->getDiffuse();
+raytracer.cpp:  float reflect = hitObject->getMaterial()->getReflect();
+raytracer.cpp:  float specular = hitObject->getMaterial()->getSpecular();
+raytracer.cpp:  color objectColor = hitObject->getMaterial()->getColor();
+raytracer.cpp:  color lightColor = actLight->getColor();
+raytracer.cpp:  float intensity = actLight->getIntensity(intersecPos); 
+raytracer.cpp:  //get the vectors for calculation
+raytracer.cpp:  vector3d lightPos = actLight->getPosition();
+raytracer.cpp:  vector3d intersecToLight = lightPos - intersecPos;
+raytracer.cpp:  vector3d rayDirection = -1*shootRay.getDirection();
+raytracer.cpp:  //normalize the direction vectors
+raytracer.cpp:  rayDirection.Normalize();
+raytracer.cpp:  intersecToLight.Normalize();
+raytracer.cpp:  //test for normal inversion
+raytracer.cpp:  float cosChi = normal*rayDirection;
+raytracer.cpp:  if (cosChi < 0) normal = -1*normal;
+raytracer.cpp:  //this is the vector for specular calculation
+raytracer.cpp:  vector3d intersecToLight_refl = 2*(intersecToLight*normal)*normal - intersecToLight;
+raytracer.cpp:  intersecToLight_refl.Normalize();
+raytracer.cpp:  //now calculate the angles
+raytracer.cpp:  float cosPhi = normal*intersecToLight;
+raytracer.cpp:  float cosTheta = intersecToLight_refl*rayDirection;
+raytracer.cpp:  //calculate the shading
+raytracer.cpp:  //---------------------
+raytracer.cpp:  if ((cosPhi > 0) && (diffuse > 0))
+raytracer.cpp:    akkColor = intensity * (cosPhi * diffuse) * objectColor * lightColor;
+raytracer.cpp:  if ((cosTheta > 0) && (specular > 0))
+raytracer.cpp:    akkColor += intensity * (pow(cosTheta,n)*specular) * objectColor * lightColor;
+raytracer.cpp:  
+raytracer.cpp://  cout << akkColor.getR() << akkColor.getG() << akkColor.getB();
+raytracer.cpp:  return akkColor;
+raytracer.cpp:// getNearestObjectInRay
+raytracer.cpp:primitive* raytracer::getNearestObjectInRay(ray aShootRay) {
+raytracer.cpp:// calculates the nearest object which is hit by aShootRay
+raytracer.cpp:// - modifies the t paramter for intersection point calculation
+raytracer.cpp:  primitive* hitObject = NULL;
+raytracer.cpp:  float tMin = 10000;
+raytracer.cpp:  for (int i=0; i<m_scene->getNrOfPrimitives(); i++)
+raytracer.cpp:  {	
+raytracer.cpp:    primitive* actObject = m_scene->getPrimitive(i);
+raytracer.cpp:    float t = actObject->intersect(aShootRay);
+raytracer.cpp:    if ((t>0) && (t<tMin)) 
+raytracer.cpp:    {	
+raytracer.cpp:      hitObject = actObject;
+raytracer.cpp:      tMin = t;
+raytracer.cpp:    } 
+raytracer.cpp:  }
+raytracer.cpp:  t = tMin;
+raytracer.cpp:  return hitObject;
+raytracer.cpp:// renderPixel
+raytracer.cpp:color raytracer::renderPixel(int x, int y) {
+raytracer.cpp:// calculates the color of the pixel an (x,y) in the frame of
+raytracer.cpp:// the camera
+raytracer.cpp://  cout << "renderPixel";
+raytracer.cpp:  color pixelColor(0,0,0);
+raytracer.cpp:  //this if for anti-alias
+raytracer.cpp:  if ((mAntiAlias > 0) && (mAntiAlias%2 == 0))
+raytracer.cpp:  {
+raytracer.cpp:    float h = 1/float(mAntiAlias);
+raytracer.cpp:    float h2 = h*h;
+raytracer.cpp:    float r,g,b;
+raytracer.cpp:    r = 0;
+raytracer.cpp:    g = 0;
+raytracer.cpp:    b = 0;
+raytracer.cpp:   
+raytracer.cpp:    //if ((x%10==0) && (y%10==0)) cout<<"h:"<<h<<"h2:"<<h2<<"\n";
+raytracer.cpp:    for (int ix=0; ix<mAntiAlias; ix++)
+raytracer.cpp:      for (int iy=0; iy<mAntiAlias; iy++)
+raytracer.cpp:      {
+raytracer.cpp:        float tx = (float(x)-(mAntiAlias-1)*h/2)+ix*h;
+raytracer.cpp:        float ty = (float(y)-(mAntiAlias-1)*h/2)+iy*h;
+raytracer.cpp:        //if ((x%10==0) && (y%10==0)) cout << "tx:" << tx << "ty" << ty << "\n";
+raytracer.cpp:        ray shootRay = m_scene->getCamera()->getShootRay(tx,ty);  
+raytracer.cpp:        color actColor = raytrace(shootRay, traceDepth);
+raytracer.cpp:        r += actColor.getR();
+raytracer.cpp:        g += actColor.getG();
+raytracer.cpp:        b += actColor.getB();
+raytracer.cpp:      }
+raytracer.cpp:    pixelColor.setR(h2*r);
+raytracer.cpp:    pixelColor.setG(h2*g);
+raytracer.cpp:    pixelColor.setB(h2*b);
+raytracer.cpp:    //if ((x%10==0) && (y%10==0)) 
+raytracer.cpp:    //  cout << "color averaged: "<<pixelColor.getR()<<" "
+raytracer.cpp:    //                            <<pixelColor.getG()<<" "
+raytracer.cpp:    //                            <<pixelColor.getB()<<"\n";
+raytracer.cpp:  }
+raytracer.cpp:  else
+raytracer.cpp:  //no anti-alias
+raytracer.cpp:  {
+raytracer.cpp:    ray shootRay = m_scene->getCamera()->getShootRay(x,y);
+raytracer.cpp:    pixelColor = raytrace(shootRay, traceDepth);
+raytracer.cpp:    //if ((x%10==0) && (y%10==0)) 
+raytracer.cpp:    //  cout << "color: "<<pixelColor.getR()<<" "
+raytracer.cpp:    //                   <<pixelColor.getG()<<" "
+raytracer.cpp:    //                   <<pixelColor.getB()<<"\n";
+raytracer.cpp:  }
+raytracer.cpp:  //if ((x%10==0) && (y%10==0)) 
+raytracer.cpp:  //  cout << pixelColor.getR() << pixelColor.getG() << pixelColor.getB();
+raytracer.cpp:  return pixelColor;
+raytracer.h:#ifndef _RAYTRACER_
+raytracer.h:#define _RAYTRACER_
+raytracer.h:#include "vector3d.h"
+raytracer.h:#include "scene.h"
+raytracer.h:class raytracer {
+raytracer.h:  public:
+raytracer.h:    raytracer();
+raytracer.h:    raytracer(scene* scene, int resX, int resY);
+raytracer.h:    scene* getScene() {return m_scene;};
+raytracer.h:    color  renderPixel(int x, int y);
+raytracer.h:    int    getResX() {return m_resX;};
+raytracer.h:    int    getResY() {return m_resY;};
+raytracer.h:    void   renderScene();
+raytracer.h:    void   setScene(scene* aScene) {m_scene=aScene;};
+raytracer.h:    void   setAmbience(float aAmbience) {ambience=aAmbience;};
+raytracer.h:    void   setEnvironmentColor(color aColor) {environmentColor=aColor;};
+raytracer.h:    void   setTraceDepth(int aTraceDepth) {traceDepth=aTraceDepth;};
+raytracer.h:    void   setGlobalRefrIndex(float aGlobalRefrIndex) {globalRefrIndex=aGlobalRefrIndex;};
+raytracer.h:    void   setAmbientColor(color aColor) {ambientColor=aColor;};
+raytracer.h:    void   setAntiAlias(int n) {mAntiAlias = n;};
+raytracer.h:  private:
+raytracer.h:    //member variables
+raytracer.h:    scene* m_scene;
+raytracer.h:    int mAntiAlias; //the order of the Anti-Alias calculation
+raytracer.h:    int m_resX, m_resY, traceDepth;
+raytracer.h:    float t;  //for the ray parameterization
+raytracer.h:    float ambience;
+raytracer.h:    color environmentColor,ambientColor;
+raytracer.h:    float globalRefrIndex;
+raytracer.h:    //member methods		
+raytracer.h:    color raytrace(ray shootRay, int traceDepth);
+raytracer.h:    color getColorAtIntersecPos(primitive* hitObject, vector3d intersecPos, 
+raytracer.h:                                ray shootRay, light* actLight);
+raytracer.h:    primitive* getNearestObjectInRay(ray shootRay);
+raytracer.h:    
+raytracer_test.bak:// raytracer_project_test.cpp : Definiert den Einstiegspunkt für die Konsolenanwendung.
+raytracer_test.bak://#include "stdafx.h"
+raytracer_test.bak:#include "vector3d.h"
+raytracer_test.bak:#include "frame.h"
+raytracer_test.bak:#include "ray.h"
+raytracer_test.bak:#include "camera.h"
+raytracer_test.bak:#include "sphere.h"
+raytracer_test.bak:#include "scene.h"
+raytracer_test.bak:#include "raytracer.h"
+raytracer_test.bak:#include <iostream>
+raytracer_test.bak:using namespace std;
+raytracer_test.bak:int main(int argc, const char* argv[])
+raytracer_test.bak:	int i,j;
+raytracer_test.bak:	vector3d v(1,2,3);
+raytracer_test.bak:	vector3d u(2,-2,5);
+raytracer_test.bak:	vector3d w = v + u;
+raytracer_test.bak:	vector3d x = v;
+raytracer_test.bak:	x *= 2;
+raytracer_test.bak:	cout << "\n v " << v.x << " " << v.y << " " << v.z;
+raytracer_test.bak:	cout << "\n u " << u.x << " " << u.y << " " << u.z;
+raytracer_test.bak:	cout << "\n w " << w.x << " " << w.y << " " << w.z;
+raytracer_test.bak:	cout << "\n x " << x.x << " " << x.y << " " << x.z;
+raytracer_test.bak:	cout << "\n u*v " << u*v;
+raytracer_test.bak:	cout << "\n 5*v " << (5*v).x << " " << (5*v).y << " " << (5*v).z;
+raytracer_test.bak:	cout << "\n v " << x.x << " " << x.y << " " << x.z;
+raytracer_test.bak:	vector3d normal = u.getNormalVector();
+raytracer_test.bak:	cout << "\n normal to u " << normal.x << " " << normal.y << " " << normal.z;
+raytracer_test.bak:	cout << "\n normal*u " << normal*u;
+raytracer_test.bak:	//sphere Sphere(u,1);
+raytracer_test.bak:	camera myCam;
+raytracer_test.bak:	frame myScreen;
+raytracer_test.bak:	int camHeight = myCam.getScreen().getHeight();
+raytracer_test.bak:	int frameHeight = myScreen.getHeight();
+raytracer_test.bak:	bool cam = myCam.getScreen().getHeight() == 1000;
+raytracer_test.bak:	cout << "\n cam " << camHeight;
+raytracer_test.bak:	scene testScene;
+raytracer_test.bak:	raytracer testTracer(&testScene, 100, 50);
+raytracer_test.bak:	int maxi = testTracer.getResX();
+raytracer_test.bak:	int maxj = testTracer.getResY();
+raytracer_test.bak:	for (i=0; i<maxi; i++)
+raytracer_test.bak:			for (j=0; j<maxj; j++)
+raytracer_test.bak:				color pixelColor;
+raytracer_test.bak:				pixelColor = testTracer.renderPixel(i,j);
+raytracer_test.bak://				cout << "\n i,j " << i << " " << j << " colorR " << pixelColor.getR();
+raytracer_test.bak:	cin >> i;
+raytracer_test.bak:	return 0;
+Resource.h:// Microsoft Visual C++ generated include file.
+Resource.h:// Used by raytracer_project.rc
+Resource.h:#define IDS_APP_TITLE			103
+Resource.h:#define IDR_MAINFRAME			128
+Resource.h:#define IDD_RAYTRACER_PROJECT_DIALOG	102
+Resource.h:#define IDD_ABOUTBOX			103
+Resource.h:#define IDM_ABOUT				104
+Resource.h:#define IDM_EXIT				105
+Resource.h:#define IDI_RAYTRACER_PROJECT			107
+Resource.h:#define IDI_SMALL				108
+Resource.h:#define IDC_RAYTRACER_PROJECT			109
+Resource.h:#define IDC_MYICON				2
+Resource.h:#ifndef IDC_STATIC
+Resource.h:#define IDC_STATIC				-1
+Resource.h:// Nächste Standardwerte für neue Objekte
+Resource.h:// 
+Resource.h:#ifdef APSTUDIO_INVOKED
+Resource.h:#ifndef APSTUDIO_READONLY_SYMBOLS
+Resource.h:#define _APS_NO_MFC					130
+Resource.h:#define _APS_NEXT_RESOURCE_VALUE	129
+Resource.h:#define _APS_NEXT_COMMAND_VALUE		32771
+Resource.h:#define _APS_NEXT_CONTROL_VALUE		1000
+Resource.h:#define _APS_NEXT_SYMED_VALUE		110
+scene.cpp:#include "scene.h"
+scene.cpp:#include "sphere.h"
+scene.cpp:#include "plane.h"
+scene.cpp:#include "primitive.h"
+scene.cpp:#include "hyperboloid.h"
+scene.cpp:#include "light.h"
+scene.cpp:#include <iostream>
+scene.cpp:using namespace std;
+scene.cpp:scene::scene() {
+scene.cpp:	m_Primitives = new primitive*[100];
+scene.cpp:	mLights = new light*[100];
+scene.cpp:	m_Primitives[0] = new plane(vector3d(0,-2,0),vector3d(0,1,0),50,10);
+scene.cpp:	m_Primitives[1] = new sphere(vector3d(0,0,0),1);
+scene.cpp:	mLights[0] = new light(vector3d(3.0f,4.0f,-10.0f), color(1.0f,1.0f,1.0f), 0.8f);
+scene.cpp:        mLights[1] = new light(vector3d(-3.0f,4.0f,-20.0f), color(1.0f,1.0f,1.0f), 0.5f);
+scene.cpp:        setNrOfLights(1);
+scene.cpp:void scene::initScene() {
+scene.cpp:	m_Primitives = new primitive*[100];
+scene.cpp:	m_Primitives[0] = new sphere(vector3d(-8,2,0),1);
+scene.cpp:	m_Primitives[1] = new sphere(vector3d(2.5,1,-3),0.8);
+scene.cpp:        m_Primitives[1]->getMaterial()->setRefract(0.0f);
+scene.cpp:        m_Primitives[1]->getMaterial()->setRefrIndex(1.33f);
+scene.cpp:	m_Primitives[2] = new sphere(vector3d(-1,3,5), 2.0);
+scene.cpp:	m_Primitives[3] = new plane(vector3d(0,-2,0),vector3d(0,1,0),50,10);
+scene.cpp:        sphere* pinkSphere = new sphere(vector3d(0.0f,1.0f,-5.0f),1.5f);
+scene.cpp:	m_Primitives[4] = pinkSphere;
+scene.cpp:        m_Primitives[5] = new hyperboloid(vector3d(-6,0,0),0.5f,2, 1,1,1);
+scene.cpp://yellow 
+scene.cpp:        sphere* newSphere = new sphere(vector3d(-4.5,3,3),1.0);
+scene.cpp:	m_Primitives[6] = newSphere;
+scene.cpp:        m_Primitives[6]->getMaterial()->setRefract(0.0f);
+scene.cpp:        m_Primitives[6]->getMaterial()->setRefrIndex(1.3f);
+scene.cpp:        m_Primitives[7] = new plane(vector3d(3,2,3),vector3d(-1.0f,0,-1.0f),10,2);
+scene.cpp:        m_Primitives[7]->getMaterial()->setColor(color(1.0f,0.0f,0.0f));
+scene.cpp:        m_Primitives[7]->getMaterial()->setDiffuse(0.7);
+scene.cpp:        m_Primitives[7]->getMaterial()->setRefract(0.0f);
+scene.cpp:        m_Primitives[7]->getMaterial()->setRefrIndex(1.3f);
+scene.cpp:	mLights = new light*[100];
+scene.cpp:	mLights[0] = new light(vector3d(3.0f,4.0f,-10.0f), color(1.0f,1.0f,1.0f), 0.8f);
+scene.cpp:        mLights[1] = new light(vector3d(-3.0f,4.0f,-20.0f), color(1.0f,1.0f,1.0f), 0.5f);
+scene.cpp:        setNrOfLights(1);
+scene.h:#ifndef _SCENE_
+scene.h:#define _SCENE_
+scene.h:#include "primitive.h"
+scene.h:#include "camera.h"
+scene.h:#include "sphere.h"
+scene.h:#include "light.h"
+scene.h:class scene {
+scene.h:  public:
+scene.h:    scene();
+scene.h:    void initScene();
+scene.h:    camera* getCamera() {return &m_Camera;};
+scene.h:    primitive* getPrimitive(int index) {return m_Primitives[index];};
+scene.h:    light* getLight(int index) {return mLights[index];};
+scene.h:    int getNrOfPrimitives() {return mNrOfPrimitives;};
+scene.h:    void setNrOfPrimitives(int n) {mNrOfPrimitives = n;};
+scene.h:    int getNrOfLights() {return mNrOfLights;};
+scene.h:    void setNrOfLights(int n) {mNrOfLights = n;};
+scene.h:    void addPrimitive();
+scene.h:    void addLight();
+scene.h:  private:
+scene.h:    primitive** m_Primitives;
+scene.h:    light** mLights;
+scene.h:    int mNrOfPrimitives;
+scene.h:    int mNrOfLights;
+scene.h:    camera m_Camera;
+sphere.cpp:#include "sphere.h"
+sphere.cpp:#include "ray.h"
+sphere.cpp:#include <math.h>
+sphere.cpp:sphere::sphere() {
+sphere.cpp:// the constructor 
+sphere.cpp:sphere::sphere(vector3d position_in, float radius) : primitive(position_in) {
+sphere.cpp:  m_radius = radius;
+sphere.cpp:float sphere::intersect(ray ray) {
+sphere.cpp:  float t,t1,t2 = 0;
+sphere.cpp:  vector3d o = ray.getOrigin();
+sphere.cpp:  vector3d d = ray.getDirection();
+sphere.cpp:  vector3d p = this->getPosition();
+sphere.cpp:  float r = m_radius;
+sphere.cpp:  float a = 2*(o*d-p*d)/(d*d);
+sphere.cpp:  float b = ((o-p)*(o-p)-(r*r))/(d*d);
+sphere.cpp:  float diskriminante = (a*a)/4 - b;
+sphere.cpp:  if (diskriminante > 0)
+sphere.cpp:  {
+sphere.cpp:    t1 = -a/2 + sqrt(diskriminante);
+sphere.cpp:    t2 = -a/2 - sqrt(diskriminante);
+sphere.cpp:    if ((t1>0.01f) && (t2>0.01f))
+sphere.cpp:    {
+sphere.cpp:    if (t1<t2) t=t1; else t=t2;
+sphere.cpp:    } else t=-1;
+sphere.cpp:  } else t=-1;
+sphere.cpp:  return t;
+sphere.cpp:// getNormal
+sphere.cpp:vector3d sphere::getNormal(vector3d p) {
+sphere.cpp:// returns the normal at the position p
+sphere.cpp:  //analytically
+sphere.cpp:  vector3d normal = p - getPosition();
+sphere.cpp:  normal.Normalize();
+sphere.cpp:  float r = getRadius(); 
+sphere.cpp:  float h = 0.01f;
+sphere.cpp:  float x = p.getX();
+sphere.cpp:  float y = p.getY();
+sphere.cpp:  float z = p.getZ();
+sphere.cpp:  float px = getPosition().getX();
+sphere.cpp:  float py = getPosition().getY();
+sphere.cpp:  float pz = getPosition().getZ();
+sphere.cpp:  //numerically
+sphere.cpp:  float dfdx = ((x-px+h)*(x-px+h)-(x-px)*(x-px))/h;
+sphere.cpp:  float dfdy = ((y-py+h)*(y-py+h)-(y-py)*(y-py))/h;
+sphere.cpp:  float dfdz = ((z-pz+h)*(z-pz+h)-(z-pz)*(z-pz))/h;
+sphere.cpp:  vector3d normal1(dfdx,dfdy,dfdz);
+sphere.cpp:  normal1.Normalize();
+sphere.cpp:  return normal;
+sphere.h:#ifndef _SPHERE_
+sphere.h:#define _SPHERE_
+sphere.h:#include "vector3d.h"
+sphere.h:#include "primitive.h"
+sphere.h:class sphere : public primitive {
+sphere.h:		sphere(vector3d position_in, float radius);
+sphere.h:		float intersect(ray ray);
+sphere.h:		vector3d getNormal(vector3d p);
+sphere.h:		float getRadius() {return m_radius;};
+sphere.h:		float m_radius;
+tracerAttributes.txt:traceDepth 3
+transformation.cpp:#include "transformation.h"
+transformation.cpp:#include "matrix.h"
+transformation.cpp:transformation::transformation() {
+transformation.cpp:  m_trafoMatrix = matrix::getIdentityMatrix();
+transformation.cpp:  numTrafo = 0;
+transformation.cpp:void transformation::addTrafo(matrix trafo) {
+transformation.cpp:  m_trafoMatrix = trafo * m_trafoMatrix;
+transformation.cpp:  numTrafo++;
+transformation.cpp:  trafos[numTrafo] = &trafo;
+transformation.h:#ifndef _TRANSFORMATION_
+transformation.h:#define _TRANSFORMATION_
+transformation.h:#include "matrix.h"
+transformation.h:class transformation {
+transformation.h:  public:
+transformation.h:    transformation();
+transformation.h:    matrix getTrafoMatrix() {return m_trafoMatrix;};
+transformation.h:    void addTrafo(matrix trafo);
+transformation.h:    matrix getInversTrafoMatrix();
+transformation.h:  private:
+transformation.h:    matrix m_trafoMatrix;
+transformation.h:    matrix m_inversTrafoMatrix;
+transformation.h:    matrix *trafos[100];
+transformation.h:    int numTrafo; 
+vector3d.cpp:#include <iostream>
+vector3d.cpp:#include "vector3d.h"
+vector3d.cpp:#include "math.h"
+vector3d.cpp:using namespace std;
+vector3d.cpp:vector3d::vector3d(void) {
+vector3d.cpp:	x = 0;
+vector3d.cpp:	y = 0;
+vector3d.cpp:	z = 0;
+vector3d.cpp:vector3d::vector3d(float x_in, float y_in, float z_in) {
+vector3d.cpp:	x = x_in;
+vector3d.cpp:	y = y_in;
+vector3d.cpp:	z = z_in;
+vector3d.cpp:vector3d::~vector3d() {
+vector3d.cpp://gibt die Länge des Vektors zurück
+vector3d.cpp:float vector3d::getLength() {
+vector3d.cpp:	return sqrt(x*x+y*y+z*z);
+vector3d.cpp://normalisiert den Vektor auf die Länge 1
+vector3d.cpp:void vector3d::Normalize() {
+vector3d.cpp:	float length = getLength();
+vector3d.cpp:	if (length != 0) {
+vector3d.cpp:		x /= length;
+vector3d.cpp:		y /= length;
+vector3d.cpp:		z /= length;
+vector3d.cpp://setze die Koordinaten
+vector3d.cpp:void vector3d::setCoordinates(float x_in, float y_in, float z_in) {
+vector3d.cpp:	x = x_in;
+vector3d.cpp:	y = y_in;
+vector3d.cpp:	z = z_in;
+vector3d.cpp://schreibt einen Vektor auf die Konsole
+vector3d.cpp:void vector3d::print(string name) {
+vector3d.cpp:  cout << "vector " << name << " : " << x << " " << y << " " << z << "\n";
+vector3d.cpp: 
+vector3d.cpp://skalarprodukt static
+vector3d.cpp:float vector3d::Dot(vector3d a, vector3d b) {
+vector3d.cpp:	return (a.x*b.x+a.y*b.y+a.z*b.z);
+vector3d.cpp:float vector3d::Dot(vector3d a) {
+vector3d.cpp:	return (x * a.x + y * a.y + z * a.z);
+vector3d.cpp:vector3d vector3d::getNormalVector() {
+vector3d.cpp:	return vector3d(x, (-pow(x,2)-pow(z,2))/y, z);
+vector3d.cpp:void vector3d::operator +=(vector3d A) {
+vector3d.cpp:	x += A.x;
+vector3d.cpp:	y += A.y;
+vector3d.cpp:	z += A.z;
+vector3d.cpp:void vector3d::operator -=(vector3d A) {
+vector3d.cpp:	x -= A.x;
+vector3d.cpp:	y -= A.y;
+vector3d.cpp:	z -= A.z;
+vector3d.cpp:void vector3d::operator *=(float a) {
+vector3d.cpp:	x *= a;
+vector3d.cpp:	y *= a;
+vector3d.cpp:	z *= a;
+vector3d.cpp:vector3d operator +(vector3d A, vector3d B) {
+vector3d.cpp:	return vector3d(A.x + B.x, A.y + B.y, A.z + B.z);
+vector3d.cpp:vector3d operator -(vector3d A, vector3d B) {
+vector3d.cpp:	return vector3d(A.x - B.x, A.y - B.y, A.z - B.z);
+vector3d.cpp:float operator *(vector3d A, vector3d B) {
+vector3d.cpp:	return (A.x * B.x + A.y * B.y + A.z * B.z);
+vector3d.cpp:vector3d operator *(float a, vector3d B) {
+vector3d.cpp:	return vector3d(a * B.x, a * B.y, a * B.z);
+vector3d.h:#ifndef _VECTOR3D_
+vector3d.h:#define _VECTOR3D_
+vector3d.h:#include <iostream>
+vector3d.h:class vector3d	{
+vector3d.h:  public:
+vector3d.h:    vector3d(void);
+vector3d.h:    vector3d(float x_in, float y_in, float z_in);
+vector3d.h:    ~vector3d();
+vector3d.h:    float getLength();
+vector3d.h:    void Normalize();
+vector3d.h:    static float Dot(vector3d x, vector3d y);
+vector3d.h:    vector3d getNormalVector();
+vector3d.h:    float getX(){return x;};
+vector3d.h:    float getY(){return y;};
+vector3d.h:    float getZ(){return z;};
+vector3d.h:    float Dot(vector3d a);
+vector3d.h:    void setCoordinates(float x_in, float y_in, float z_in);
+vector3d.h:    void print(std::string name); 
+vector3d.h:    void operator+=(vector3d A);
+vector3d.h:    void operator-=(vector3d A);
+vector3d.h:    void operator*=(float a);
+vector3d.h:    friend vector3d operator + (vector3d A, vector3d B);
+vector3d.h:    friend vector3d operator - (vector3d A, vector3d B);
+vector3d.h:    friend float operator * (vector3d A, vector3d B);
+vector3d.h:    friend vector3d operator * (float a, vector3d B);
+vector3d.h:    float x,y,z;
+vector3d.h:  private:

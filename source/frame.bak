@@ -1,0 +1,45 @@
+//frame.cpp
+
+#include <iostream>
+#include "frame.h"
+
+frame::frame() {
+  m_width = 400;
+  m_height = 300;
+  m_position.setCoordinates(0,0,0);
+  updateFrameCoordinates();
+}
+
+frame::frame(vector3d position, int width, int height) {
+  m_width = width;
+  m_height = height;
+  m_position = position;
+  updateFrameCoordinates();
+}
+
+vector3d frame::getUnitVecX() {
+  updateFrameCoordinates();
+  ex = mRightUp - mLeftUp;
+//  ex.Normalize();
+  return ex;
+}
+
+vector3d frame::getUnitVecY() {
+  updateFrameCoordinates();
+  ey = mLeftDown - mLeftUp;
+//  ey.Normalize();
+  return ey;
+}
+
+void frame::setPosition(vector3d position) {
+  m_position = position;
+  updateFrameCoordinates();
+}
+
+void frame::updateFrameCoordinates() {
+  float aspect = float(m_width)/float(m_height);
+  mLeftUp.setCoordinates(getPosition().getX()-aspect/2,getPosition().getY()+0.5,getPosition().getZ());
+  mRightUp.setCoordinates(getPosition().getX()+aspect/2,getPosition().getY()+0.5,getPosition().getZ());
+  mLeftDown.setCoordinates(getPosition().getX()-aspect/2,getPosition().getY()-0.5,getPosition().getZ());
+  mRightDown.setCoordinates(getPosition().getX()+aspect/2,getPosition().getY()-0.5,getPosition().getZ());
+}
