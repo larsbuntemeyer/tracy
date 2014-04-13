@@ -7,11 +7,13 @@ using namespace std;
 camera::camera() {
   cout << "creating camera...\n";
   position.setCoordinates(0.0f,0.0f,0.0f);
-  translate(0.0f,1.0f,-5.0f);
+  translate(0.0f,2.0f,-5.0f);
+    rotate(0.0,0.0,0.0);
   direction.setCoordinates(0.0f,0.0f,1.0f);
   direction.Normalize();
   angle = 0.0f;
   mFrame.setPosition(position + 1.0f * direction);
+  
 }
 
 camera::camera(vector3d position_in, vector3d direction_in,

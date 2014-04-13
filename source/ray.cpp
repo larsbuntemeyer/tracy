@@ -21,6 +21,7 @@ void ray::setOrigin(vector3d origin_in) {
 
 void ray::setDirection(vector3d direction_in) {
 	direction = direction_in;
+    direction.Normalize();
 }
 
 vector3d& ray::getOrigin() {

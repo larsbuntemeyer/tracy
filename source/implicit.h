@@ -5,6 +5,7 @@
 
 #include "vector3d.h"
 #include "primitive.h"
+#include "ray.h"
 #include <iostream>
 
 using namespace std;
@@ -16,8 +17,10 @@ class implicit : public primitive {
     float intersect(ray ray);
     vector3d getNormal(vector3d p);
   private:
-    double func(double x);
+    double func(double t);
+    double implicitSurface(vector3d p);
     double zbrent(double x1, double x2, double tol);
+    ray searchRay;
 };
 
 #endif

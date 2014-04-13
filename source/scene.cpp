@@ -9,6 +9,7 @@
 #include "hyperboloid.h"
 #include "cylinder.h"
 #include "light.h"
+#include "implicit.h"
 #include <iostream>
 #include <cmath>
 
@@ -49,17 +50,22 @@ scene::scene() {
 //        m_Primitives[1]->rotate(0,0,0);
 //        m_Primitives[1]->scale(1,1,1);
 
-	m_Primitives[1] = new cylinder(vector3d(0.0f,0.0f,0.0f),0.75f,2.0f);
-	m_Primitives[1]->getMaterial()->setColor(color(0.0f,0.0f,1.0f));
-	m_Primitives[1]->getMaterial()->setDiffuse(1.0f);
-	m_Primitives[1]->getMaterial()->setSpecular(0.6f);
-	m_Primitives[1]->getMaterial()->setReflect(0.2f);
-        m_Primitives[1]->translate(0,1.0f,0);
-        m_Primitives[1]->rotate(70.0f,0.0f,0.0f);
-        m_Primitives[1]->rotate(0.0f,30.0f,0.0f);
-//        m_Primitives[1]->rotate(0,45.0f,0.0f);
-        m_Primitives[1]->scale(1.0f,1.0f,1.0f);
-//
+//	m_Primitives[1] = new cylinder(vector3d(0.0f,0.0f,0.0f),0.75f,2.0f);
+//	m_Primitives[1]->getMaterial()->setColor(color(0.0f,0.0f,1.0f));
+//	m_Primitives[1]->getMaterial()->setDiffuse(1.0f);
+//	m_Primitives[1]->getMaterial()->setSpecular(0.6f);
+//	m_Primitives[1]->getMaterial()->setReflect(0.2f);
+//        m_Primitives[1]->translate(0,1.0f,0);
+//        m_Primitives[1]->rotate(70.0f,0.0f,0.0f);
+//        m_Primitives[1]->rotate(0.0f,30.0f,0.0f);
+////        m_Primitives[1]->rotate(0,45.0f,0.0f);
+//        m_Primitives[1]->scale(1.0f,1.0f,
+    m_Primitives[1] = new implicit(vector3d(0.0f,0.0f,0.0f));
+    m_Primitives[1]->getMaterial()->setColor(color(0.0f,0.0f,1.0f));
+    m_Primitives[1]->getMaterial()->setDiffuse(1.0f);
+    m_Primitives[1]->getMaterial()->setSpecular(1.0f);
+    m_Primitives[1]->getMaterial()->setReflect(0.0f);
+////
 	setNrOfPrimitives(2);
 
 //lights

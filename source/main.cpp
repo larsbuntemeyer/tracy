@@ -18,14 +18,15 @@
 #include "raytracer.h"
 #include "matrix.h"
 #include "transformation.h"
+#include "implicit.h"
 
 //grafic interfaces
 #include "CImg.h"
-#include "quickcg.h"
+//#include "quickcg.h"
 
-#define resX 720 
+#define resX 720
 #define resY 576
-#define traceDepth 3 
+#define traceDepth 1
 #define antiAlias 0
 #define startFrame 0
 #define endFrame 1000
@@ -58,7 +59,7 @@ int main(int /*argc*/, char */*argv*/[])
 
 
   //test
-  //testAlgebra();
+  testAlgebra();
 
   //test
   //testTrigonometry();
@@ -210,21 +211,21 @@ void view() {
   //beging raytracing
   float nrPixels = resX*resY;
   int renderedPixels = 0;
-  for (int i=0; i<resX; i++)
-  { 
-    for (int j=0; j<resY; j++)
-    {
-      //cout << "begin rendering of pixel: " << i << " " << j << "\n";
-      color pixelColor;
-      pixelColor = testTracer.renderPixel(i,j);
-     //cout << pixelColor.getR();
-     QuickCG::pset(i,j,QuickCG::ColorRGB(pixelColor.getR()*255,pixelColor.getG()*255,pixelColor.getB()*255));
-      renderedPixels++;
-      float percentage = renderedPixels*100/nrPixels;
-      if (percentage - int(renderedPixels*100/nrPixels) == 0)
-        std::cout << percentage << " percent done...\n";
-    }
-  }
+//  for (int i=0; i<resX; i++)
+//  { 
+//    for (int j=0; j<resY; j++)
+//    {
+//      //cout << "begin rendering of pixel: " << i << " " << j << "\n";
+//      color pixelColor;
+//      pixelColor = testTracer.renderPixel(i,j);
+//     //cout << pixelColor.getR();
+//     QuickCG::pset(i,j,QuickCG::ColorRGB(pixelColor.getR()*255,pixelColor.getG()*255,pixelColor.getB()*255));
+//      renderedPixels++;
+//      float percentage = renderedPixels*100/nrPixels;
+//      if (percentage - int(renderedPixels*100/nrPixels) == 0)
+//        std::cout << percentage << " percent done...\n";
+//    }
+//  }
 //  QuickCG::print(line,8,8);
  
   //on screen!
@@ -295,6 +296,16 @@ void testAlgebra() {
   
   locator testLocator;
   testLocator.getTranslation().print("testLocator Translation");
+
+    implicit sphere;
+    ray testRay;
+    testRay.setOrigin(vector3d(0.0,0.0,-6.0));
+    testRay.setDirection(vector3d(0.0,0.0,1.0));
+    cout << "implicit surface test" << endl;
+    double t = sphere.intersect(testRay);
+    cout << "t:" << t << endl;
+    
+  
 }
 
 

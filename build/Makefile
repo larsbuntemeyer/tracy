@@ -21,18 +21,22 @@ OBJECTS = camera.o color.o light.o \
           vector3d.o matrix.o transformation.o texture.o locator.o \
           implicit.o
 
-FLAGS   = #-I.. -Wall -W -ansi -pedantic -lm -Dcimg_use_vt100
+#FLAGS   = #-I.. -Wall -W -ansi -pedantic -lm -Dcimg_use_vt100
        #   -L/usr/X11R6/lib -lpthread -lX11 -lXext -lXrandr \
        #   -I/usr/X11R6/include -Dcimg_use_xshm -Dcimg_use_xrandr 
 
+CFLAGS  = -I.. -Wall -W -ansi -pedantic -Dcimg_use_vt100 -I/usr/X11R6/include -lm 
+
+LFLAGS  = -L/usr/X11R6/lib -lpthread -lX11
+
 main:   main.o quickcg.o $(OBJECTS) $(HEADERS)
-	$(CC) main.o quickcg.o $(OBJECTS) -lSDL -o main $(FLAGS)
+	$(CC) main.o $(OBJECTS) -o main $(LFLAGS)
 
 test:   raytracer_test.o $(OBJECTS)
 	$(CC) raytracer_test.o $(OBJECTS) -o test
 
 .cpp.o: 
-	$(CC) -g -c $<
+	$(CC) -c $<
 
 clean:
 	rm $(OBJECTS) main main.o quickcg.o
