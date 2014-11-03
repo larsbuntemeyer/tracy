@@ -27,9 +27,10 @@ OBJECTS = camera.o color.o light.o \
 
 CFLAGS  = -I.. -Wall -W -ansi -pedantic -Dcimg_use_vt100 -I/usr/X11R6/include -lm 
 
+#LFLAGS  = -L/usr/X11R6/lib -lpthread -lX11
 LFLAGS  = -L/usr/X11R6/lib -lpthread -lX11
 
-main:   main.o quickcg.o $(OBJECTS) $(HEADERS)
+main:   main.o $(OBJECTS) $(HEADERS)
 	$(CC) main.o $(OBJECTS) -o main $(LFLAGS)
 
 test:   raytracer_test.o $(OBJECTS)
