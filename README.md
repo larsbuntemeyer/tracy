@@ -1,1 +1,3 @@
-# tracy - a raytracer in C++
+# tracy
+
+A simple raytracer implemented in C++, including simple procedural animation capabilities.
